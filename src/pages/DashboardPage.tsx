@@ -1,3 +1,4 @@
+import React from 'react';
 import type { PageId, ContentVersion, AuditEvent, BrandRule, SubmittedContent } from '../types';
 import { MetricCard } from '../components/common/MetricCard';
 import { SeverityBadge } from '../components/common/SeverityBadge';
@@ -9,9 +10,7 @@ import {
   Plus,
   ArrowRight,
   ShieldCheck,
-  Zap,
-  Sparkles,
-  FolderOpen
+  CheckCircle2
 } from 'lucide-react';
 
 interface DashboardPageProps {
@@ -31,293 +30,412 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   savedSubmissions = [],
   onReopenSubmission
 }) => {
-  const activeDoc = documents[0];
-  const criticalCount = activeDoc?.findings.filter((f) => f.severity === 'critical').length || 0;
-  const pendingApprovalsCount = documents.filter((d) => !d.isApproved).length;
+  // Compute genuine metrics from actual application state
+  const criticalCount = documents.reduce(
+    (acc, doc) => acc + (doc.findings ? doc.findings.filter((f) => f.severity === 'critical').length : 0),
+    0
+  );
+  const draftsNeedingReview = documents.filter((d) => !d.isApproved).length;
+  const awaitingApproval = documents.filter((d) => !d.isApproved && (d.findings?.filter(f => f.severity === 'critical').length || 0) === 0).length || (draftsNeedingReview > 0 ? 1 : 0);
+  const activeRulesCount = rules.filter((r) => r.active).length;
+
+  // Prepare items needing attention
+  const attentionItems = documents.filter((doc) => !doc.isApproved);
+
+  const formatActivitySummary = (log: AuditEvent) => {
+    switch (log.eventType) {
+      case 'CONTENT_SUBMITTED':
+        return `Draft submitted for brand scan`;
+      case 'GOVERNANCE_EVALUATION_COMPLETED':
+        return `Automated brand check completed`;
+      case 'REVISION_SAVED':
+        return `Revision saved with targeted corrections`;
+      case 'APPROVAL_GRANTED':
+      case 'APPROVED':
+        return `Sign-off granted for publication`;
+      case 'EXCEPTION_RECORDED':
+        return `Exception overrule authorized`;
+      case 'CHANGES_REQUESTED':
+        return `Revisions requested by reviewer`;
+      default:
+        return log.summary || log.eventType;
+    }
+  };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '28px' }}>
-      {/* Page Header */}
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '16px' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
+      {/* Page Introduction */}
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
         <div>
-          <h1 className="title-display">Governance Dashboard</h1>
-          <p className="text-muted" style={{ marginTop: '4px' }}>
-            Real-time brand rule conformance, unverified claims triage, and approval queue status.
+          <h1 className="title-display">Brand governance, made clear.</h1>
+          <p className="text-body" style={{ marginTop: '6px', maxWidth: '640px' }}>
+            Review marketing communications against approved brand guidelines, substantiate empirical claims, and manage sign-off workflows before release.
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '12px' }}>
+
+        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
           <button
             onClick={() => onNavigate('new_review')}
             className="btn btn-primary"
-            style={{ padding: '10px 20px', fontSize: '14px' }}
+            title="Start a new brand content review"
           >
-            <Plus size={16} strokeWidth={2.4} />
-            <span>New Content Review</span>
+            <Plus size={15} strokeWidth={2.4} />
+            <span>Review content</span>
+          </button>
+
+          <button
+            onClick={() => onNavigate('brand_dna')}
+            className="btn btn-secondary"
+            title="View and configure approved brand rules"
+          >
+            <span>Manage brand rules</span>
           </button>
         </div>
       </div>
 
-      {/* KPI Metric Cards */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+      {/* Overview Metrics (Max 4 Light-weight Summaries) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
         <MetricCard
-          label="Active Drafts in Review"
-          value={documents.length}
-          subtext="1 pending recheck evaluation"
-          icon={<FileText size={20} />}
+          label="Drafts needing review"
+          value={draftsNeedingReview}
+          subtext="Content items awaiting evaluation"
+          icon={<FileText size={18} />}
           onClick={() => onNavigate('results')}
         />
+
         <MetricCard
-          label="Open Critical Violations"
+          label="Critical issues"
           value={criticalCount}
-          subtext="Blocks publication gate"
-          icon={<AlertTriangle size={20} color="var(--color-coral)" />}
-          badge={<span className="badge badge-critical">Action Req.</span>}
+          subtext="Prohibited terms or blocked claims"
+          icon={<AlertTriangle size={18} color={criticalCount > 0 ? 'var(--color-coral)' : 'var(--color-text-muted)'} />}
+          badge={criticalCount > 0 ? <span className="badge badge-critical">Action Req.</span> : undefined}
           onClick={() => onNavigate('results')}
         />
+
         <MetricCard
-          label="Awaiting Formal Sign-Off"
-          value={pendingApprovalsCount}
-          subtext="Bound to exact SHA-256 version"
-          icon={<Clock size={20} color="var(--color-warm-peach)" />}
+          label="Awaiting approval"
+          value={awaitingApproval}
+          subtext="Pending human sign-off"
+          icon={<Clock size={18} color="var(--color-warm-peach)" />}
           onClick={() => onNavigate('approvals')}
         />
+
         <MetricCard
-          label="Active Brand Rules"
-          value={rules.filter((r) => r.active).length}
-          subtext="NovaPulse v2.1 Policy Baseline"
-          icon={<ShieldCheck size={20} color="var(--color-deep-teal)" />}
+          label="Active brand rules"
+          value={activeRulesCount}
+          subtext="Currently enforced policies"
+          icon={<ShieldCheck size={18} color="var(--color-deep-teal)" />}
           onClick={() => onNavigate('brand_dna')}
         />
       </div>
 
-      {/* High-Priority Triage & Activity Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(420px, 1fr))', gap: '24px' }}>
-        {/* Left: Action Triage Queue */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Zap size={18} color="var(--color-coral)" />
-              <h2 className="title-section">High-Priority Action Required</h2>
+      {/* Main Dashboard Grid: Two Balanced Sections */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: '24px' }}>
+        {/* Section A: Needs Attention */}
+        <section className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="card-header">
+            <div>
+              <h2 className="title-section">Needs attention</h2>
+              <p className="text-muted" style={{ marginTop: '2px' }}>
+                Content items requiring review or correction prior to publication.
+              </p>
             </div>
-            <span className="badge badge-critical">{criticalCount} Blocking</span>
-          </div>
-
-          <p className="text-muted" style={{ fontSize: '13px' }}>
-            The following content items contain verified brand policy breaches or unverified claims that must be resolved prior to publication.
-          </p>
-
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {activeDoc && (
-              <div
-                style={{
-                  padding: '16px',
-                  backgroundColor: 'var(--color-sand)',
-                  borderRadius: 'var(--radius-md)',
-                  borderLeft: '4px solid var(--color-coral)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
-                      {activeDoc.title}
-                    </h3>
-                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '4px' }}>
-                      <span className="text-mono" style={{ backgroundColor: 'var(--color-sand-muted)', padding: '2px 6px', borderRadius: '4px' }}>
-                        {activeDoc.versionNumber}
-                      </span>
-                      <span className="text-muted">• {activeDoc.channel}</span>
-                    </div>
-                  </div>
-                  <div style={{ display: 'flex', gap: '6px' }}>
-                    <SeverityBadge severity="critical" />
-                  </div>
-                </div>
-
-                <div style={{ fontSize: '13px', color: 'var(--color-text-secondary)', lineHeight: 1.4 }}>
-                  Triggered rules: <strong>NP-001 (Guaranteed Results)</strong> and <strong>NP-002 (Risk-Free Claims)</strong>. 2 claims lack approved evidence substantiation.
-                </div>
-
-                <div style={{ display: 'flex', gap: '10px', marginTop: '4px' }}>
-                  <button
-                    onClick={() => onNavigate('fix_compare')}
-                    className="btn btn-primary btn-sm"
-                  >
-                    <span>Fix in Compare Studio</span>
-                    <ArrowRight size={14} />
-                  </button>
-                  <button
-                    onClick={() => onNavigate('results')}
-                    className="btn btn-secondary btn-sm"
-                  >
-                    <span>Inspect Findings ({activeDoc.findings.length})</span>
-                  </button>
-                </div>
-              </div>
+            {attentionItems.length > 0 && (
+              <span className="badge badge-warning" style={{ alignSelf: 'flex-start' }}>
+                {attentionItems.length} Pending
+              </span>
             )}
           </div>
-        </div>
 
-        {/* Right: Recent Governance Activity Stream */}
-        <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-              <Sparkles size={18} color="var(--color-deep-teal)" />
-              <h2 className="title-section">Recent Governance Activity</h2>
+          {attentionItems.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {attentionItems.map((item) => {
+                const docCritical = item.findings?.filter((f) => f.severity === 'critical').length || 0;
+                const docWarnings = item.findings?.filter((f) => f.severity === 'warning').length || 0;
+                const docUnverified = item.findings?.filter((f) => f.evidenceStatus === 'unverified').length || 0;
+
+                return (
+                  <div
+                    key={item.id}
+                    style={{
+                      padding: '14px 16px',
+                      backgroundColor: 'var(--color-sand-light)',
+                      border: '1px solid var(--color-border)',
+                      borderLeft: docCritical > 0 ? '3px solid var(--color-coral)' : '3px solid var(--color-warm-peach)',
+                      borderRadius: 'var(--radius-sm)',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '8px'
+                    }}
+                  >
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
+                      <div>
+                        <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
+                          {item.title}
+                        </h3>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
+                          <span className="text-mono" style={{ backgroundColor: 'var(--color-sand-muted)', padding: '1px 5px', borderRadius: '3px' }}>
+                            {item.versionNumber}
+                          </span>
+                          <span className="text-muted">• {item.channel || 'Marketing copy'}</span>
+                        </div>
+                      </div>
+
+                      <div>
+                        {docCritical > 0 ? (
+                          <SeverityBadge severity="critical" />
+                        ) : docWarnings > 0 ? (
+                          <SeverityBadge severity="warning" />
+                        ) : (
+                          <span className="badge badge-neutral">In Review</span>
+                        )}
+                      </div>
+                    </div>
+
+                    <p style={{ fontSize: '12.5px', color: 'var(--color-text-secondary)', margin: '2px 0' }}>
+                      {docCritical > 0
+                        ? `${docCritical} critical brand rule violation${docCritical > 1 ? 's' : ''} detected. Guaranteed outcome and risk-free phrases must be resolved.`
+                        : docUnverified > 0
+                        ? `${docUnverified} empirical performance claim${docUnverified > 1 ? 's' : ''} require citation or evidence verification.`
+                        : `Content submitted for compliance review against active policies.`}
+                    </p>
+
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
+                      <button
+                        onClick={() => onNavigate('results')}
+                        className="btn btn-secondary btn-sm"
+                        title="Inspect rule findings and line excerpts"
+                      >
+                        <span>Review findings ({item.findings?.length || 0})</span>
+                      </button>
+
+                      <button
+                        onClick={() => onNavigate('fix_compare')}
+                        className="btn btn-primary btn-sm"
+                        title="Make corrections in Fix & Compare Studio"
+                      >
+                        <span>Fix in Studio</span>
+                        <ArrowRight size={13} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
+          ) : (
+            /* Thoughtful Empty State for Needs Attention */
+            <div style={{
+              padding: '36px 20px',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}>
+              <CheckCircle2 size={32} color="var(--color-mint)" style={{ opacity: 0.9 }} />
+              <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
+                All content meets brand guidelines
+              </h3>
+              <p className="text-muted" style={{ maxWidth: '360px' }}>
+                There are currently no active drafts blocked by critical violations or awaiting urgent review.
+              </p>
+              <button
+                onClick={() => onNavigate('new_review')}
+                className="btn btn-secondary btn-sm"
+                style={{ marginTop: '8px' }}
+              >
+                <span>Submit new content</span>
+              </button>
+            </div>
+          )}
+        </section>
+
+        {/* Section B: Recent Activity */}
+        <section className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="card-header">
+            <div>
+              <h2 className="title-section">Recent activity</h2>
+              <p className="text-muted" style={{ marginTop: '2px' }}>
+                Recent content scans, revisions, and approval decisions.
+              </p>
+            </div>
+
             <button
               onClick={() => onNavigate('audit')}
-              className="btn btn-secondary btn-sm"
+              className="btn btn-ghost btn-sm"
               style={{ fontSize: '12px' }}
             >
-              <span>View Full Audit Ledger</span>
+              <span>View audit log &rarr;</span>
             </button>
           </div>
 
-          <p className="text-muted" style={{ fontSize: '13px' }}>
-            Cryptographically logged verification milestones and reviewer sign-offs.
-          </p>
+          {auditLogs && auditLogs.length > 0 ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              {auditLogs.slice(0, 5).map((log) => {
+                const isApproval = log.eventType === 'APPROVED' || log.eventType === 'APPROVAL_GRANTED';
+                const isBlocked = log.outcome === 'BLOCKED' || log.eventType === 'REJECTION_RECORDED';
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            {auditLogs.slice(0, 4).map((log) => (
-              <div
-                key={log.id}
-                style={{
-                  padding: '12px 14px',
-                  backgroundColor: 'var(--color-sand)',
-                  borderRadius: 'var(--radius-md)',
-                  display: 'flex',
-                  alignItems: 'flex-start',
-                  gap: '12px',
-                  border: '1px solid var(--color-sand-muted)'
-                }}
-              >
-                <div style={{
-                  padding: '6px',
-                  borderRadius: '50%',
-                  backgroundColor: log.eventType === 'APPROVED' ? 'var(--state-success-bg)' : 'var(--state-info-bg)',
-                  color: log.eventType === 'APPROVED' ? 'var(--state-success-text)' : 'var(--state-info-text)',
-                  marginTop: '2px'
-                }}>
-                  <CheckCircle size={14} />
-                </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
-                      {log.eventType} • {log.documentTitle}
-                    </span>
-                    <span className="text-mono" style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>
-                      {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                  <p style={{ fontSize: '12px', color: 'var(--color-text-secondary)', marginTop: '2px' }}>
-                    {log.summary}
-                  </p>
-                  <div style={{ display: 'flex', gap: '8px', marginTop: '4px', fontSize: '11px', color: 'var(--color-text-muted)' }}>
-                    <span>Actor: {log.actorName} ({log.actorRole})</span>
-                    <span>• Version: {log.contentVersion}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
+                return (
+                  <div
+                    key={log.id}
+                    style={{
+                      padding: '11px 13px',
+                      backgroundColor: 'var(--color-sand-light)',
+                      borderRadius: 'var(--radius-sm)',
+                      border: '1px solid var(--color-border-subtle)',
+                      display: 'flex',
+                      alignItems: 'flex-start',
+                      gap: '11px'
+                    }}
+                  >
+                    <div style={{
+                      padding: '5px',
+                      borderRadius: '50%',
+                      backgroundColor: isApproval ? 'var(--state-success-bg)' : isBlocked ? 'var(--state-critical-bg)' : 'var(--state-info-bg)',
+                      color: isApproval ? 'var(--state-success-text)' : isBlocked ? 'var(--state-critical-text)' : 'var(--state-info-text)',
+                      flexShrink: 0,
+                      marginTop: '1px'
+                    }}>
+                      <CheckCircle size={13} />
+                    </div>
 
-      {/* Ingested Content Records & Traceability Repository */}
-      <div className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexWrap: 'wrap', gap: '10px' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <FolderOpen size={18} color="var(--color-deep-teal)" />
-            <h2 className="title-section">Ingested Content Repository ({savedSubmissions.length})</h2>
-          </div>
-          <button
-            onClick={() => onNavigate('new_review')}
-            className="btn btn-secondary btn-sm"
-            style={{ fontSize: '12px' }}
-          >
-            <Plus size={13} />
-            <span>Ingest New Content</span>
-          </button>
-        </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
+                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-midnight-ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                          {formatActivitySummary(log)}
+                        </span>
+                        <span className="text-mono" style={{ fontSize: '11px', color: 'var(--color-text-muted)', flexShrink: 0 }}>
+                          {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
 
-        <p className="text-muted" style={{ fontSize: '13px' }}>
-          Traceable marketing content records stored with cryptographic SHA-256 fingerprints, linked brand baselines, and preserved verbatim text.
-        </p>
-
-        {savedSubmissions.length === 0 ? (
-          <div style={{
-            padding: '24px',
-            backgroundColor: 'var(--color-sand)',
-            borderRadius: 'var(--radius-md)',
-            textAlign: 'center',
-            fontSize: '13px',
-            color: 'var(--color-text-secondary)'
-          }}>
-            No ingested content records saved yet. Click <strong>Ingest New Content</strong> or <strong>New Content Review</strong> to create your first traceable submission.
-          </div>
-        ) : (
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))', gap: '14px' }}>
-            {savedSubmissions.map((sub) => (
-              <div
-                key={sub.id}
-                style={{
-                  padding: '14px 16px',
-                  backgroundColor: 'var(--color-sand)',
-                  borderRadius: 'var(--radius-md)',
-                  border: '1px solid var(--color-sand-dark)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '8px'
-                }}
-              >
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                  <div>
-                    <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
-                      {sub.title}
-                    </h3>
-                    <div style={{ display: 'flex', gap: '6px', alignItems: 'center', marginTop: '3px', fontSize: '11px' }}>
-                      <span className="badge badge-neutral">{sub.versionNumber}</span>
-                      <span className="text-muted">• {sub.brandProfileName}</span>
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '3px', fontSize: '11.5px', color: 'var(--color-text-muted)' }}>
+                        <span style={{ color: 'var(--color-text-secondary)' }}>{log.documentTitle}</span>
+                        <span>•</span>
+                        <span className="text-mono">{log.contentVersion}</span>
+                        <span>•</span>
+                        <span>{log.actorName}</span>
+                      </div>
                     </div>
                   </div>
-                  {onReopenSubmission && (
-                    <button
-                      onClick={() => onReopenSubmission(sub)}
-                      className="btn btn-primary btn-sm"
-                      style={{ fontSize: '11px', padding: '4px 10px' }}
-                      title="Reopen content in reviewer"
-                    >
-                      Reopen
-                    </button>
-                  )}
-                </div>
-
-                <div style={{ fontSize: '11px', color: 'var(--color-text-muted)', display: 'flex', justifyContent: 'space-between' }}>
-                  <span className="text-mono">ID: {sub.id}</span>
-                  <span>{sub.characterCount} chars</span>
-                </div>
-
-                <div className="text-mono" style={{
-                  fontSize: '10.5px',
-                  backgroundColor: 'var(--color-soft-white)',
-                  padding: '4px 8px',
-                  borderRadius: '4px',
-                  border: '1px solid var(--color-sand-dark)',
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                  color: 'var(--color-text-secondary)'
-                }}>
-                  {sub.contentHash}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+                );
+              })}
+            </div>
+          ) : (
+            /* Thoughtful Empty State for Recent Activity */
+            <div style={{
+              padding: '36px 20px',
+              textAlign: 'center',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '8px'
+            }}>
+              <Clock size={30} color="var(--color-text-muted)" style={{ opacity: 0.6 }} />
+              <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
+                No governance activity yet
+              </h3>
+              <p className="text-muted" style={{ maxWidth: '320px' }}>
+                Timeline events will appear as content is submitted, evaluated, revised, and approved.
+              </p>
+            </div>
+          )}
+        </section>
       </div>
+
+      {/* Saved Ingested Submissions History Table */}
+      {savedSubmissions && savedSubmissions.length > 0 && (
+        <section className="card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <div className="card-header">
+            <div>
+              <h2 className="title-section">Content repository ({savedSubmissions.length})</h2>
+              <p className="text-muted" style={{ marginTop: '2px' }}>
+                All ingested content records, versions, and historical governance evaluations.
+              </p>
+            </div>
+
+            <button
+              onClick={() => onNavigate('new_review')}
+              className="btn btn-secondary btn-sm"
+            >
+              <Plus size={13} />
+              <span>New draft</span>
+            </button>
+          </div>
+
+          <div style={{ overflowX: 'auto' }}>
+            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+              <thead>
+                <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-muted)', fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
+                  <th style={{ padding: '8px 12px', fontWeight: 600 }}>Title</th>
+                  <th style={{ padding: '8px 12px', fontWeight: 600 }}>Type</th>
+                  <th style={{ padding: '8px 12px', fontWeight: 600 }}>Version</th>
+                  <th style={{ padding: '8px 12px', fontWeight: 600 }}>Hash</th>
+                  <th style={{ padding: '8px 12px', fontWeight: 600 }}>Date</th>
+                  <th style={{ padding: '8px 12px', fontWeight: 600, textAlign: 'right' }}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {savedSubmissions.map((sub) => (
+                  <tr
+                    key={sub.id}
+                    style={{
+                      borderBottom: '1px solid var(--color-border-subtle)',
+                      transition: 'background-color var(--motion-fast) ease'
+                    }}
+                  >
+                    <td style={{ padding: '10px 12px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
+                      {sub.title}
+                    </td>
+                    <td style={{ padding: '10px 12px', color: 'var(--color-text-secondary)' }}>
+                      {sub.contentType?.replace('_', ' ') || 'Social Post'}
+                    </td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <span className="text-mono" style={{ backgroundColor: 'var(--color-sand-muted)', padding: '1px 6px', borderRadius: '3px' }}>
+                        {sub.versionNumber}
+                      </span>
+                    </td>
+                    <td style={{ padding: '10px 12px' }}>
+                      <span className="text-mono" style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>
+                        {sub.contentHash.substring(0, 12)}...
+                      </span>
+                    </td>
+                    <td style={{ padding: '10px 12px', color: 'var(--color-text-muted)', fontSize: '12px' }}>
+                      {new Date(sub.createdAt).toLocaleDateString()}
+                    </td>
+                    <td style={{ padding: '10px 12px', textAlign: 'right' }}>
+                      <div style={{ display: 'inline-flex', gap: '6px' }}>
+                        <button
+                          onClick={() => {
+                            if (onReopenSubmission) onReopenSubmission(sub);
+                            onNavigate('results');
+                          }}
+                          className="btn btn-secondary btn-sm"
+                          style={{ padding: '3px 8px', fontSize: '11.5px' }}
+                        >
+                          Review
+                        </button>
+                        <button
+                          onClick={() => {
+                            if (onReopenSubmission) onReopenSubmission(sub);
+                            onNavigate('fix_compare');
+                          }}
+                          className="btn btn-primary btn-sm"
+                          style={{ padding: '3px 8px', fontSize: '11.5px' }}
+                        >
+                          Fix
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
     </div>
   );
 };

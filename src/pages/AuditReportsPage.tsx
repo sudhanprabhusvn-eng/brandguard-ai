@@ -233,15 +233,16 @@ export const AuditReportsPage: React.FC<AuditReportsPageProps> = ({
             <span
               style={{
                 fontSize: '11px',
-                fontWeight: 700,
-                padding: '3px 8px',
-                borderRadius: '999px',
-                backgroundColor: 'rgba(14, 59, 58, 0.08)',
-                color: 'var(--color-deep-teal)',
+                fontWeight: 600,
+                padding: '2px 8px',
+                borderRadius: 'var(--radius-xs)',
+                backgroundColor: 'var(--color-sand-light)',
+                border: '1px solid var(--color-border)',
+                color: 'var(--color-text-secondary)',
                 letterSpacing: '0.04em'
               }}
             >
-              PHASE 10
+              Cryptographic Hash Chain
             </span>
           </div>
           <p className="text-muted" style={{ marginTop: '4px', maxWidth: '720px' }}>

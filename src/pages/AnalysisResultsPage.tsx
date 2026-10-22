@@ -242,9 +242,9 @@ export const AnalysisResultsPage: React.FC<AnalysisResultsPageProps> = ({
             <span>Return to Content Ingestion</span>
           </button>
           <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>•</span>
-          <span className="badge badge-info" style={{ fontSize: '11px' }}>
-            Phase 7: AI Contextual Review & Dual Engine
-          </span>
+            <span className="badge badge-neutral" style={{ fontSize: '11px' }}>
+              Dual Engine Evaluation
+            </span>
         </div>
 
         <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
@@ -481,7 +481,7 @@ export const AnalysisResultsPage: React.FC<AnalysisResultsPageProps> = ({
           <div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
               <h2 style={{ fontSize: '14.5px', fontWeight: 700, color: 'var(--color-midnight-ink)' }}>
-                AI Contextual Review Layer (Phase 7)
+                Contextual AI Review Layer
               </h2>
               {aiStatus === 'completed' ? (
                 <span className="badge badge-success" style={{ fontSize: '10.5px' }}>

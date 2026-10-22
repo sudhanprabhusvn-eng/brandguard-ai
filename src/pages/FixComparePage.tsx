@@ -342,8 +342,8 @@ export const FixComparePage: React.FC<FixComparePageProps> = ({
             <span>Return to Results</span>
           </button>
           <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>•</span>
-          <span className="badge badge-info" style={{ fontSize: '11px' }}>
-            Phase 8: Versioned Fix & Compare Studio
+          <span className="badge badge-neutral" style={{ fontSize: '11px' }}>
+            Revision & Diff Studio
           </span>
           {isDirty && (
             <span

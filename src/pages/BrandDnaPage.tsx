@@ -166,77 +166,91 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
       {/* Brand Header Banner */}
       <div
         style={{
-          backgroundColor: 'var(--color-deep-teal)',
-          color: 'var(--color-soft-white)',
-          padding: '28px',
-          borderRadius: 'var(--radius-xl)',
+          backgroundColor: 'var(--color-soft-white)',
+          border: '1px solid var(--color-border)',
+          borderRadius: 'var(--radius-lg)',
+          padding: '24px 28px',
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
+          alignItems: 'flex-start',
           flexWrap: 'wrap',
           gap: '20px',
-          boxShadow: 'var(--shadow-card)',
-          position: 'relative',
-          overflow: 'hidden'
+          boxShadow: 'var(--shadow-subtle)'
         }}
       >
-        <div style={{ maxWidth: '680px', zIndex: 1 }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', flexWrap: 'wrap' }}>
-            <span style={{ fontSize: '11px', fontWeight: 700, backgroundColor: 'rgba(0, 229, 168, 0.2)', color: 'var(--color-mint)', padding: '2px 8px', borderRadius: '4px', letterSpacing: '0.04em' }}>
+        <div style={{ maxWidth: '680px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap', marginBottom: '8px' }}>
+            <span
+              style={{
+                fontSize: '11px',
+                fontWeight: 600,
+                backgroundColor: 'rgba(0, 229, 168, 0.15)',
+                color: 'var(--color-deep-teal)',
+                padding: '2px 8px',
+                borderRadius: 'var(--radius-xs)',
+                letterSpacing: '0.04em'
+              }}
+            >
               ACTIVE GOVERNANCE PROFILE
             </span>
             {brandProfile.isDemonstration && (
-              <span style={{ fontSize: '11px', fontWeight: 700, backgroundColor: 'rgba(255, 182, 133, 0.25)', color: 'var(--color-warm-peach)', padding: '2px 8px', borderRadius: '4px' }}>
-                ★ Demonstration Seed
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  backgroundColor: 'rgba(255, 182, 133, 0.25)',
+                  color: 'var(--color-midnight-ink)',
+                  padding: '2px 8px',
+                  borderRadius: 'var(--radius-xs)'
+                }}
+              >
+                ★ Demo Baseline
               </span>
             )}
-            <span className="text-mono" style={{ fontSize: '12px', color: 'var(--color-lavender)' }}>
+            <span className="text-mono" style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
               Ruleset Baseline: {brandProfile.version}
             </span>
             {brandProfile.industry && (
-              <span style={{ fontSize: '12px', color: 'var(--color-sand-muted)' }}>
+              <span style={{ fontSize: '12px', color: 'var(--color-text-secondary)' }}>
                 • {brandProfile.industry}
               </span>
             )}
           </div>
 
-          <h1 style={{ fontSize: '24px', fontWeight: 700, marginTop: '8px', color: 'var(--color-soft-white)' }}>
-            {brandProfile.name} Brand DNA & Governance Policies
+          <h1 style={{ fontSize: '22px', fontWeight: 700, color: 'var(--color-midnight-ink)', margin: 0 }}>
+            {brandProfile.name} Brand Rules & Governance Policies
           </h1>
-          <p style={{ fontSize: '14px', color: 'var(--color-sand-muted)', marginTop: '6px', lineHeight: 1.5 }}>
+          <p style={{ fontSize: '13.5px', color: 'var(--color-text-secondary)', marginTop: '6px', lineHeight: 1.5 }}>
             {brandProfile.description}
           </p>
         </div>
 
         {/* Action Controls in Header */}
-        <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', zIndex: 1 }}>
+        <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
           <button
             onClick={() => setIsProfileModalOpen(true)}
             className="btn btn-secondary btn-sm"
-            style={{ backgroundColor: 'rgba(255, 252, 247, 0.1)', color: 'var(--color-soft-white)', borderColor: 'rgba(255, 252, 247, 0.2)' }}
             title="Edit brand profile metadata, voice guidelines, and disclosures"
           >
-            <Edit3 size={14} />
+            <Edit3 size={13} />
             <span>Edit Profile</span>
           </button>
 
           <button
             onClick={() => setIsHistoryModalOpen(true)}
             className="btn btn-secondary btn-sm"
-            style={{ backgroundColor: 'rgba(255, 252, 247, 0.1)', color: 'var(--color-soft-white)', borderColor: 'rgba(255, 252, 247, 0.2)' }}
             title="Inspect chronological version increments and modification audit trail"
           >
-            <History size={14} />
+            <History size={13} />
             <span>Version History ({brandProfile.versionHistory?.length || 1})</span>
           </button>
 
           <button
             onClick={handleExportJson}
             className="btn btn-secondary btn-sm"
-            style={{ backgroundColor: 'rgba(255, 252, 247, 0.1)', color: 'var(--color-soft-white)', borderColor: 'rgba(255, 252, 247, 0.2)' }}
             title="Export brand rules and evidence as JSON"
           >
-            <Download size={14} />
+            <Download size={13} />
             <span>Export JSON</span>
           </button>
 
@@ -244,10 +258,10 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
             <button
               onClick={() => setIsResetConfirmOpen(true)}
               className="btn btn-secondary btn-sm"
-              style={{ backgroundColor: 'rgba(255, 252, 247, 0.08)', color: 'var(--color-warm-peach)', borderColor: 'rgba(255, 182, 133, 0.3)' }}
+              style={{ color: 'var(--color-coral)' }}
               title="Reset profile back to clean NovaPulse initial state"
             >
-              <RotateCcw size={14} />
+              <RotateCcw size={13} />
               <span>Reset Demo</span>
             </button>
           )}
@@ -523,8 +537,9 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
                     key={rule.id}
                     className="card"
                     style={{
-                      borderLeft: `4px solid ${stripeColor}`,
-                      opacity: rule.active ? 1 : 0.65,
+                      borderLeft: `4px solid ${rule.active ? stripeColor : 'var(--color-sand-dark)'}`,
+                      opacity: rule.active ? 1 : 0.68,
+                      backgroundColor: rule.active ? 'var(--color-soft-white)' : 'var(--color-sand)',
                       transition: 'all var(--motion-control) var(--ease-control)',
                       display: 'flex',
                       flexDirection: 'column',
@@ -534,19 +549,38 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
                   >
                     <div>
                       {/* Top Header of Rule Card */}
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexWrap: 'wrap' }}>
-                          <span className="text-mono" style={{ fontWeight: 700, color: 'var(--color-deep-teal)', fontSize: '13px' }}>
-                            {rule.id}
-                          </span>
-                          <SeverityBadge severity={rule.severity} />
-                          <span style={{ fontSize: '11px', textTransform: 'uppercase', color: 'var(--color-text-muted)', fontWeight: 600 }}>
-                            {rule.engine === 'deterministic' ? '⚡ Deterministic' : '🧠 AI Contextual'}
-                          </span>
+                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '10px' }}>
+                        <div>
+                          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', flexWrap: 'wrap', marginBottom: '4px' }}>
+                            <span className="text-mono" style={{ fontSize: '11px', fontWeight: 600, color: 'var(--color-text-secondary)', backgroundColor: 'var(--color-sand)', padding: '1px 6px', borderRadius: 'var(--radius-xs)', border: '1px solid var(--color-border)' }}>
+                              {rule.id}
+                            </span>
+                            <SeverityBadge severity={rule.severity} />
+                            <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', fontWeight: 500 }}>
+                              {rule.engine === 'deterministic' ? '⚡ Deterministic' : '🧠 AI Contextual'}
+                            </span>
+                            {(rule.evidenceReferenceId || rule.category === 'factual_claim') && (
+                              <span
+                                style={{
+                                  fontSize: '10.5px',
+                                  padding: '1px 6px',
+                                  borderRadius: 'var(--radius-xs)',
+                                  backgroundColor: 'rgba(255, 182, 133, 0.25)',
+                                  color: 'var(--color-midnight-ink)',
+                                  border: '1px solid var(--color-warm-peach)'
+                                }}
+                              >
+                                Evidence Required
+                              </span>
+                            )}
+                          </div>
+                          <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-midnight-ink)', margin: '4px 0 0 0' }}>
+                            {rule.name}
+                          </h3>
                         </div>
 
                         {/* Interactive Active Toggle Switch */}
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', flexShrink: 0 }}>
                           <span style={{ fontSize: '11px', fontWeight: 600, color: rule.active ? 'var(--color-deep-teal)' : 'var(--color-text-muted)' }}>
                             {rule.active ? 'Active' : 'Disabled'}
                           </span>
@@ -560,10 +594,6 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
                           </label>
                         </div>
                       </div>
-
-                      <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-midnight-ink)', marginTop: '8px' }}>
-                        {rule.name}
-                      </h3>
                       <p style={{ fontSize: '13px', color: 'var(--color-text-secondary)', marginTop: '4px', lineHeight: 1.45 }}>
                         {rule.description}
                       </p>

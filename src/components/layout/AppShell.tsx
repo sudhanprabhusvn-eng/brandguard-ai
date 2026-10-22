@@ -2,10 +2,8 @@ import React, { useState } from 'react';
 import type { PageId, PersonaRole, BrandProfile } from '../../types';
 import {
   LayoutDashboard,
-  BookOpen,
   FileEdit,
-  Search,
-  GitCompare,
+  BookOpen,
   CheckCircle,
   FileText,
   ChevronLeft,
@@ -47,14 +45,21 @@ export const AppShell: React.FC<AppShellProps> = ({
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navigationItems = [
-    { id: 'dashboard' as PageId, label: 'Dashboard', icon: <LayoutDashboard size={18} /> },
-    { id: 'brand_dna' as PageId, label: 'Brand DNA & Rules', icon: <BookOpen size={18} /> },
-    { id: 'new_review' as PageId, label: 'New Review', icon: <FileEdit size={18} /> },
-    { id: 'results' as PageId, label: 'Analysis Results', icon: <Search size={18} /> },
-    { id: 'fix_compare' as PageId, label: 'Fix & Compare', icon: <GitCompare size={18} /> },
-    { id: 'approvals' as PageId, label: 'Approval Queue', icon: <CheckCircle size={18} /> },
-    { id: 'audit' as PageId, label: 'Audit & Reports', icon: <FileText size={18} /> }
+  // Grouped Navigation: WORKSPACE & GOVERNANCE
+  const workspaceItems = [
+    { id: 'dashboard' as PageId, label: 'Overview', icon: <LayoutDashboard size={17} /> },
+    {
+      id: 'new_review' as PageId,
+      label: 'Content Reviews',
+      icon: <FileEdit size={17} />,
+      isReviewGroup: true
+    },
+    { id: 'brand_dna' as PageId, label: 'Brand Rules', icon: <BookOpen size={17} /> }
+  ];
+
+  const governanceItems = [
+    { id: 'approvals' as PageId, label: 'Approval Queue', icon: <CheckCircle size={17} /> },
+    { id: 'audit' as PageId, label: 'Audit & Reports', icon: <FileText size={17} /> }
   ];
 
   const handleNavClick = (pageId: PageId) => {
@@ -62,17 +67,15 @@ export const AppShell: React.FC<AppShellProps> = ({
     setIsMobileMenuOpen(false);
   };
 
+  // Check if current page is within the review workflow
+  const isReviewWorkflowActive = currentPage === 'new_review' || currentPage === 'results' || currentPage === 'fix_compare';
+
   return (
     <div className="app-shell">
-      {/* Ambient Visual Identity Layer */}
-      <div className="ambient-background" aria-hidden="true">
-        <div className="ambient-blob-1" />
-        <div className="ambient-blob-2" />
-      </div>
-
       {/* Top Application Bar */}
       <header className="app-topbar">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+        {/* Left: Brand Identity & Active Profile */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
           <button
             className="btn btn-secondary btn-sm"
             style={{ display: 'none', padding: '6px', backgroundColor: 'transparent', color: 'var(--color-soft-white)' }}
@@ -80,146 +83,150 @@ export const AppShell: React.FC<AppShellProps> = ({
             aria-label="Toggle navigation menu"
             id="mobile-nav-toggle"
           >
-            <Menu size={20} />
+            <Menu size={18} />
           </button>
 
-          {/* Logo & Platform Name */}
+          {/* Logo & Product Name */}
           <div
-            style={{ display: 'flex', alignItems: 'center', gap: '10px', cursor: 'pointer' }}
+            style={{ display: 'flex', alignItems: 'center', gap: '9px', cursor: 'pointer' }}
             onClick={() => onNavigate('dashboard')}
+            title="Go to Overview"
           >
             <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '6px',
+              width: '28px',
+              height: '28px',
+              borderRadius: 'var(--radius-sm)',
               backgroundColor: 'var(--color-mint)',
-              color: 'var(--color-midnight-ink)',
+              color: 'var(--color-deep-teal)',
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              fontWeight: 800,
-              boxShadow: '0 2px 6px rgba(0, 229, 168, 0.4)'
+              fontWeight: 700
             }}>
-              <Shield size={20} strokeWidth={2.4} />
+              <Shield size={16} strokeWidth={2.5} />
             </div>
-            <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <span style={{ fontSize: '16px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-soft-white)' }}>
-                  BrandGuard AI
-                </span>
-                <span style={{
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  backgroundColor: 'rgba(0, 229, 168, 0.18)',
-                  color: 'var(--color-mint)',
-                  padding: '1px 6px',
-                  borderRadius: '4px',
-                  letterSpacing: '0.04em'
-                }}>
-                  PHASE 4
-                </span>
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <span style={{ fontSize: '15px', fontWeight: 700, letterSpacing: '-0.02em', color: 'var(--color-soft-white)' }}>
+                BrandGuard AI
+              </span>
+              <span style={{
+                fontSize: '10px',
+                fontWeight: 600,
+                backgroundColor: 'rgba(255, 252, 247, 0.1)',
+                color: 'rgba(255, 252, 247, 0.75)',
+                padding: '1px 6px',
+                borderRadius: '3px',
+                letterSpacing: '0.04em'
+              }}>
+                DEMO
+              </span>
             </div>
           </div>
 
-          {/* Dynamic Active Brand Profile Selector */}
+          {/* Subtle Vertical Divider */}
+          <div style={{ width: '1px', height: '20px', backgroundColor: 'rgba(255, 252, 247, 0.12)' }} />
+
+          {/* Discreet Brand Profile Selector */}
           <div style={{
             display: 'flex',
             alignItems: 'center',
-            gap: '8px',
-            backgroundColor: 'rgba(255, 252, 247, 0.08)',
-            padding: '4px 10px',
-            borderRadius: '6px',
-            fontSize: '13px'
+            gap: '6px',
+            backgroundColor: 'rgba(255, 252, 247, 0.06)',
+            padding: '2px 8px',
+            borderRadius: 'var(--radius-sm)',
+            fontSize: '12.5px'
           }}>
-            <span style={{ color: 'var(--color-sand-muted)' }}>Brand:</span>
+            <span style={{ color: 'rgba(255, 252, 247, 0.55)', fontSize: '12px' }}>Brand:</span>
             <select
               value={activeProfile.id}
               onChange={(e) => onSelectProfile(e.target.value)}
-              className="form-select"
               style={{
                 backgroundColor: 'transparent',
                 color: 'var(--color-soft-white)',
-                borderColor: 'transparent',
+                border: 'none',
                 fontWeight: 600,
-                fontSize: '13px',
-                padding: '2px 6px',
-                cursor: 'pointer'
+                fontSize: '12.5px',
+                padding: '2px 4px',
+                cursor: 'pointer',
+                outline: 'none'
               }}
-              aria-label="Active Brand Profile"
+              aria-label="Select active brand profile"
             >
               {allProfiles.map((p) => (
                 <option key={p.id} value={p.id} style={{ backgroundColor: 'var(--color-midnight-ink)', color: 'var(--color-soft-white)' }}>
-                  {p.name} ({p.version}) {p.isDemonstration ? '★ Demo' : ''}
+                  {p.name} ({p.version})
                 </option>
               ))}
             </select>
 
             <button
               onClick={onCreateProfileClick}
-              className="btn btn-sm"
               style={{
-                backgroundColor: 'rgba(255, 252, 247, 0.12)',
+                backgroundColor: 'transparent',
                 color: 'var(--color-mint)',
                 border: 'none',
-                padding: '2px 6px',
-                fontSize: '11px',
-                borderRadius: '4px'
+                padding: '2px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center'
               }}
-              title="Create a new brand profile"
+              title="Create new brand profile"
             >
-              <Plus size={12} />
-              <span>New Brand</span>
+              <Plus size={13} />
             </button>
           </div>
         </div>
 
-        {/* Global Controls & Status */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-          {/* Dual Engine / Degraded Toggle */}
+        {/* Right: Engine Status & Demo Role */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          {/* Dual Engine Status */}
           <button
             onClick={onToggleAiDegraded}
-            className="btn btn-sm"
             style={{
-              backgroundColor: isAiDegraded ? 'rgba(255, 182, 133, 0.16)' : 'rgba(0, 229, 168, 0.14)',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '6px',
+              backgroundColor: isAiDegraded ? 'rgba(255, 182, 133, 0.12)' : 'rgba(0, 229, 168, 0.10)',
               color: isAiDegraded ? 'var(--color-warm-peach)' : 'var(--color-mint)',
-              border: `1px solid ${isAiDegraded ? 'var(--color-warm-peach)' : 'rgba(0, 229, 168, 0.4)'}`,
-              fontSize: '12px',
-              padding: '4px 10px'
+              border: `1px solid ${isAiDegraded ? 'rgba(255, 182, 133, 0.3)' : 'rgba(0, 229, 168, 0.3)'}`,
+              borderRadius: 'var(--radius-sm)',
+              fontSize: '11.5px',
+              fontWeight: 500,
+              padding: '3px 8px',
+              cursor: 'pointer'
             }}
-            title="Click to toggle simulated AI provider connectivity state"
+            title="Toggle simulated AI engine availability"
           >
-            <Activity size={13} />
-            <span>
-              {isAiDegraded ? 'Simulate: AI Offline (Deterministic Only)' : 'Engine: Dual Active ●'}
-            </span>
+            <Activity size={12} />
+            <span>{isAiDegraded ? 'Deterministic Only' : 'Dual Engine Active'}</span>
           </button>
 
-          {/* Persona Role Switcher */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <span style={{ fontSize: '12px', color: 'var(--color-sand-muted)', display: 'flex', alignItems: 'center', gap: '4px' }}>
-              <UserCheck size={14} /> Role <span style={{ fontSize: '10px', opacity: 0.8 }}>(Demo Only)</span>:
+          {/* Persona Role Switcher (Restrained Demo Indicator) */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
+            <span style={{ fontSize: '11.5px', color: 'rgba(255, 252, 247, 0.55)', display: 'flex', alignItems: 'center', gap: '3px' }}>
+              <UserCheck size={13} />
             </span>
             <select
               value={currentRole}
               onChange={(e) => onRoleChange(e.target.value as PersonaRole)}
-              className="form-select"
-              title="Client-side demo persona simulation. Does not enforce server-side authentication."
               style={{
-                backgroundColor: 'var(--color-teal-tint)',
+                backgroundColor: 'rgba(255, 252, 247, 0.08)',
                 color: 'var(--color-soft-white)',
-                borderColor: 'rgba(255, 252, 247, 0.2)',
-                padding: '5px 10px',
-                fontSize: '13px',
+                border: '1px solid rgba(255, 252, 247, 0.15)',
+                borderRadius: 'var(--radius-sm)',
+                padding: '3px 8px',
+                fontSize: '12px',
                 fontWeight: 500,
-                cursor: 'pointer'
+                cursor: 'pointer',
+                outline: 'none'
               }}
-              aria-label="Active Persona Role (Demo Mode Only)"
+              title="Client-side demo role simulation for testing authorization gates"
+              aria-label="Active persona role (Demo mode)"
             >
-              <option value="creator">Content Creator (Demo)</option>
-              <option value="brand_manager">Brand Manager (Demo)</option>
-              <option value="approver">Approver / Sign-Off (Demo)</option>
-              <option value="admin">Administrator (Demo)</option>
+              <option value="creator" style={{ backgroundColor: 'var(--color-midnight-ink)' }}>Creator (Demo)</option>
+              <option value="brand_manager" style={{ backgroundColor: 'var(--color-midnight-ink)' }}>Brand Manager (Demo)</option>
+              <option value="approver" style={{ backgroundColor: 'var(--color-midnight-ink)' }}>Approver (Demo)</option>
+              <option value="admin" style={{ backgroundColor: 'var(--color-midnight-ink)' }}>Admin (Demo)</option>
             </select>
           </div>
         </div>
@@ -232,9 +239,101 @@ export const AppShell: React.FC<AppShellProps> = ({
           className={`app-sidebar ${isSidebarCollapsed ? 'collapsed' : ''} ${isMobileMenuOpen ? 'mobile-open' : ''}`}
           aria-label="Primary Navigation"
         >
-          <div style={{ paddingTop: '16px' }}>
+          <div style={{ paddingTop: '8px' }}>
+            {/* Section 1: WORKSPACE */}
+            {!isSidebarCollapsed && (
+              <div className="nav-section-title">Workspace</div>
+            )}
             <nav>
-              {navigationItems.map((item) => {
+              {workspaceItems.map((item) => {
+                const isActive = item.isReviewGroup ? isReviewWorkflowActive : currentPage === item.id;
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => handleNavClick(item.id)}
+                    className={`nav-item ${isActive ? 'active' : ''}`}
+                    title={isSidebarCollapsed ? item.label : undefined}
+                    aria-current={isActive ? 'page' : undefined}
+                  >
+                    <span style={{ flexShrink: 0 }}>{item.icon}</span>
+                    {!isSidebarCollapsed && (
+                      <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                        {item.label}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* Contextual Sub-Links for Content Review Workflow when on results or fix_compare */}
+            {!isSidebarCollapsed && isReviewWorkflowActive && (
+              <div style={{
+                marginLeft: '36px',
+                marginRight: '12px',
+                marginTop: '4px',
+                marginBottom: '8px',
+                paddingLeft: '10px',
+                borderLeft: '1px solid rgba(255, 252, 247, 0.15)',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '2px'
+              }}>
+                <button
+                  onClick={() => handleNavClick('new_review')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    textAlign: 'left',
+                    fontSize: '12px',
+                    color: currentPage === 'new_review' ? 'var(--color-mint)' : 'rgba(255, 252, 247, 0.65)',
+                    fontWeight: currentPage === 'new_review' ? 600 : 400,
+                    padding: '3px 0',
+                    cursor: 'pointer'
+                  }}
+                >
+                  • New Submission
+                </button>
+                <button
+                  onClick={() => handleNavClick('results')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    textAlign: 'left',
+                    fontSize: '12px',
+                    color: currentPage === 'results' ? 'var(--color-mint)' : 'rgba(255, 252, 247, 0.65)',
+                    fontWeight: currentPage === 'results' ? 600 : 400,
+                    padding: '3px 0',
+                    cursor: 'pointer'
+                  }}
+                >
+                  • Analysis Findings
+                </button>
+                <button
+                  onClick={() => handleNavClick('fix_compare')}
+                  style={{
+                    background: 'none',
+                    border: 'none',
+                    textAlign: 'left',
+                    fontSize: '12px',
+                    color: currentPage === 'fix_compare' ? 'var(--color-mint)' : 'rgba(255, 252, 247, 0.65)',
+                    fontWeight: currentPage === 'fix_compare' ? 600 : 400,
+                    padding: '3px 0',
+                    cursor: 'pointer'
+                  }}
+                >
+                  • Fix & Compare
+                </button>
+              </div>
+            )}
+
+            {/* Section 2: GOVERNANCE */}
+            <div style={{ height: '12px' }} />
+            {!isSidebarCollapsed && (
+              <div className="nav-section-title">Governance</div>
+            )}
+            <nav>
+              {governanceItems.map((item) => {
                 const isActive = currentPage === item.id;
                 return (
                   <button
@@ -265,16 +364,20 @@ export const AppShell: React.FC<AppShellProps> = ({
           }}>
             <button
               onClick={() => setIsSidebarCollapsed(!isSidebarCollapsed)}
-              className="btn btn-secondary btn-sm"
               style={{
-                backgroundColor: 'rgba(255, 252, 247, 0.08)',
-                color: 'var(--color-soft-white)',
-                borderColor: 'transparent',
-                padding: '6px'
+                backgroundColor: 'rgba(255, 252, 247, 0.06)',
+                color: 'rgba(255, 252, 247, 0.75)',
+                border: 'none',
+                borderRadius: 'var(--radius-sm)',
+                padding: '6px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
               }}
               aria-label={isSidebarCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
-              {isSidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+              {isSidebarCollapsed ? <ChevronRight size={15} /> : <ChevronLeft size={15} />}
             </button>
           </div>
         </aside>

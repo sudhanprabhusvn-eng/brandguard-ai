@@ -203,8 +203,8 @@ export const ApprovalQueuePage: React.FC<ApprovalQueuePageProps> = ({
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
             <h1 className="title-display">Governance Approval Gate</h1>
-            <span className="badge badge-info" style={{ fontSize: '11px' }}>
-              Phase 9: Human Approval Workflow
+            <span className="badge badge-neutral" style={{ fontSize: '11px' }}>
+              Governance Gate
             </span>
           </div>
           <p className="text-muted" style={{ marginTop: '4px', fontSize: '13px' }}>

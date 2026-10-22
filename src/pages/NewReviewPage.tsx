@@ -312,13 +312,13 @@ export const NewReviewPage: React.FC<NewReviewPageProps> = ({
               <span>Back to Dashboard</span>
             </button>
             <span style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>•</span>
-            <span className="badge badge-info" style={{ fontSize: '11px' }}>
-              Phase 5: Content Ingestion
+            <span className="badge badge-neutral" style={{ fontSize: '11px' }}>
+              Content Review
             </span>
           </div>
-          <h1 className="title-display">Submit Content for Governance Ingestion</h1>
+          <h1 className="title-display">New Content Review</h1>
           <p className="text-muted" style={{ marginTop: '4px', fontSize: '14px' }}>
-            Select a brand policy profile, paste copy or upload a supported text document, and mint an immutable content record.
+            Submit marketing copy to evaluate conformance against approved brand rules, empirical claim evidence, and voice guidelines.
           </p>
         </div>
 
@@ -802,8 +802,8 @@ export const NewReviewPage: React.FC<NewReviewPageProps> = ({
             </>
           ) : (
             <>
-              <Zap size={16} strokeWidth={2.4} />
-              <span>Submit for Governance Ingestion</span>
+              <Zap size={15} strokeWidth={2.4} />
+              <span>Run brand review</span>
             </>
           )}
         </button>

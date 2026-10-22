@@ -9,14 +9,18 @@
   --color-soft-white:     #FFFCF7;
   --color-coral:          #F06B70;
 
-  /* Neutral Surface & Border Scales */
-  --color-sand-muted:     #EBE4D8;
-  --color-sand-dark:      #DDD4C4;
+  /* Neutral Surface, Border & Text Scales */
+  --color-sand-light:     #FAF7F2;
+  --color-sand-muted:     #EAE4D9;
+  --color-sand-dark:      #DDD5C7;
+  --color-border:         #E3DDD2;
+  --color-border-subtle:  #EFEAE1;
   --color-teal-tint:      #164E4D;
-  --color-teal-dark:      #0A2A2A;
+  --color-teal-dark:      #082424;
+
   --color-text-primary:   #142323;
-  --color-text-secondary: #3D5252;
-  --color-text-muted:     #5A6B6B;
+  --color-text-secondary: #3E5151;
+  --color-text-muted:     #6A7B7B;
   --color-text-inverse:   #FFFCF7;
 
   /* Semantic Feedback Ensembles */
@@ -24,36 +28,36 @@
   --state-critical-border:#F06B70;
   --state-critical-text:  #8C1D22;
 
-  --state-warning-bg:     #FFF7F2;
+  --state-warning-bg:     #FFF6F0;
   --state-warning-border: #FFB685;
-  --state-warning-text:   #87441B;
+  --state-warning-text:   #8A4820;
 
-  --state-success-bg:     #EEFAF6;
+  --state-success-bg:     #E6FAF4;
   --state-success-border: #00E5A8;
-  --state-success-text:   #085E48;
+  --state-success-text:   #075E48;
 
-  --state-info-bg:        #F5F2FF;
+  --state-info-bg:        #F4F1FE;
   --state-info-border:    #C7B8FF;
-  --state-info-text:      #46348A;
+  --state-info-text:      #453386;
 
-  /* Elevation Shadows */
-  --shadow-subtle: 0 1px 3px rgba(20, 35, 35, 0.04), 0 1px 2px rgba(20, 35, 35, 0.02);
-  --shadow-card:   0 4px 12px rgba(20, 35, 35, 0.05), 0 1px 3px rgba(20, 35, 35, 0.03);
-  --shadow-modal:  0 16px 36px rgba(14, 59, 58, 0.16), 0 4px 12px rgba(20, 35, 35, 0.08);
+  /* Restrained Elevation & Depth */
+  --shadow-xs:    0 1px 2px rgba(20, 35, 35, 0.04);
+  --shadow-sm:    0 1px 3px rgba(20, 35, 35, 0.06), 0 1px 2px rgba(20, 35, 35, 0.03);
+  --shadow-md:    0 4px 12px rgba(20, 35, 35, 0.06), 0 1px 3px rgba(20, 35, 35, 0.02);
+  --shadow-modal: 0 16px 36px rgba(14, 59, 58, 0.16), 0 4px 12px rgba(20, 35, 35, 0.08);
 
-  /* Radii */
-  --radius-sm: 4px;
-  --radius-md: 6px;
-  --radius-lg: 8px;
-  --radius-xl: 12px;
+  /* Geometric Radii */
+  --radius-xs:   3px;
+  --radius-sm:   4px;
+  --radius-md:   6px;
+  --radius-lg:   8px;
+  --radius-xl:   12px;
   --radius-pill: 9999px;
 
-  /* Motion Tokens */
-  --motion-micro: 120ms;
-  --motion-control: 160ms;
-  --motion-panel: 200ms;
-  --motion-transition: 260ms;
-  --ease-standard-enter: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-standard-exit: cubic-bezier(0.4, 0, 1, 1);
-  --ease-control: cubic-bezier(0.2, 0, 0, 1);
+  /* Purposeful Micro-Motions (100ms - 240ms) */
+  --motion-fast:       110ms;
+  --motion-normal:     160ms;
+  --motion-transition: 220ms;
+  --ease-standard:     cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-control:      cubic-bezier(0.2, 0, 0, 1);
 }
