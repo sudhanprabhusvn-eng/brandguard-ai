@@ -15,7 +15,8 @@ export type RuleCategory =
   | 'prohibited_language'
   | 'factual_claim'
   | 'required_disclosure'
-  | 'tone';
+  | 'tone'
+  | 'brand_voice';
 
 export type EngineTarget = 'deterministic' | 'ai_contextual';
 
@@ -366,6 +367,8 @@ export type AuditEventType =
   | 'RULE_DELETED'
   | 'PROFILE_CREATED'
   | 'PROFILE_UPDATED'
+  | 'APPROVAL_REQUESTED'
+  | 'BRAND_RULES_UPDATED'
   | 'VERSION_INCREMENTED'
   | 'SYSTEM_DEGRADED';
 

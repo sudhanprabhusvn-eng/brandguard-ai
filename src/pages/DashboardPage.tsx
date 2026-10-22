@@ -1,16 +1,19 @@
 import React from 'react';
 import type { PageId, ContentVersion, AuditEvent, BrandRule, SubmittedContent } from '../types';
-import { MetricCard } from '../components/common/MetricCard';
-import { SeverityBadge } from '../components/common/SeverityBadge';
 import {
   FileText,
   AlertTriangle,
   Clock,
-  CheckCircle,
-  Plus,
+  Shield,
+  Play,
+  LayoutGrid,
+  ChevronRight,
   ArrowRight,
-  ShieldCheck,
-  CheckCircle2
+  Search,
+  Edit3,
+  User,
+  CheckCircle2,
+  Mail
 } from 'lucide-react';
 
 interface DashboardPageProps {
@@ -20,15 +23,17 @@ interface DashboardPageProps {
   onNavigate: (page: PageId) => void;
   savedSubmissions?: SubmittedContent[];
   onReopenSubmission?: (submission: SubmittedContent) => void;
+  onSelectDocToReview?: (doc: ContentVersion) => void;
 }
 
 export const DashboardPage: React.FC<DashboardPageProps> = ({
   documents,
   rules,
-  auditLogs,
+  auditLogs = [],
   onNavigate,
   savedSubmissions = [],
-  onReopenSubmission
+  onReopenSubmission,
+  onSelectDocToReview
 }) => {
   // Compute genuine metrics from actual application state
   const criticalCount = documents.reduce(
@@ -39,403 +44,631 @@ export const DashboardPage: React.FC<DashboardPageProps> = ({
   const awaitingApproval = documents.filter((d) => !d.isApproved && (d.findings?.filter(f => f.severity === 'critical').length || 0) === 0).length || (draftsNeedingReview > 0 ? 1 : 0);
   const activeRulesCount = rules.filter((r) => r.active).length;
 
-  // Prepare items needing attention
-  const attentionItems = documents.filter((doc) => !doc.isApproved);
-
-  const formatActivitySummary = (log: AuditEvent) => {
-    switch (log.eventType) {
-      case 'CONTENT_SUBMITTED':
-        return `Draft submitted for brand scan`;
-      case 'GOVERNANCE_EVALUATION_COMPLETED':
-        return `Automated brand check completed`;
-      case 'REVISION_SAVED':
-        return `Revision saved with targeted corrections`;
-      case 'APPROVAL_GRANTED':
-      case 'APPROVED':
-        return `Sign-off granted for publication`;
-      case 'EXCEPTION_RECORDED':
-        return `Exception overrule authorized`;
-      case 'CHANGES_REQUESTED':
-        return `Revisions requested by reviewer`;
-      default:
-        return log.summary || log.eventType;
+  const handleReviewItem = (doc: ContentVersion) => {
+    if (onSelectDocToReview) {
+      onSelectDocToReview(doc);
+      return;
     }
+    // If a saved submission corresponds to this doc, reopen it
+    if (onReopenSubmission) {
+      const matchSub = savedSubmissions.find((s) => s.id === doc.id || s.title === doc.title);
+      if (matchSub) {
+        onReopenSubmission(matchSub);
+        return;
+      }
+    }
+    onNavigate('results');
+  };
+
+  const getChannelBadgeClass = (channel?: string) => {
+    if (!channel) return 'badge-channel-social';
+    const c = channel.toLowerCase();
+    if (c.includes('web')) return 'badge-channel-web';
+    if (c.includes('email') || c.includes('blast')) return 'badge-channel-email';
+    if (c.includes('press')) return 'badge-channel-press';
+    return 'badge-channel-social';
+  };
+
+  const getStatusBadge = (doc: ContentVersion) => {
+    const findings = doc.findings || [];
+    const hasCritical = findings.some((f) => f.severity === 'critical');
+    const hasUnverified = findings.some((f) => f.evidenceStatus === 'unverified' || f.evidenceStatus === 'missing');
+    const hasWarning = findings.some((f) => f.severity === 'warning');
+
+    if (hasCritical) {
+      return <span className="badge badge-critical">Critical</span>;
+    }
+    if (hasUnverified) {
+      return <span className="badge badge-unverified">Unverified</span>;
+    }
+    if (hasWarning) {
+      return <span className="badge badge-warning">Warning</span>;
+    }
+    if (doc.isApproved) {
+      return <span className="badge badge-success">Approved</span>;
+    }
+    return <span className="badge badge-info">Info</span>;
+  };
+
+  const getKeyIssue = (doc: ContentVersion) => {
+    const findings = doc.findings || [];
+    if (findings.length === 0) return 'Fully compliant (0 findings)';
+    const topFinding = findings[0];
+    return `${topFinding.triggerText ? `"${topFinding.triggerText}"` : topFinding.ruleName} (${topFinding.ruleId || 'Rule R-001'})`;
   };
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '32px' }}>
-      {/* Page Introduction */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '16px' }}>
-        <div>
-          <h1 className="title-display">Brand governance, made clear.</h1>
-          <p className="text-body" style={{ marginTop: '6px', maxWidth: '640px' }}>
-            Review marketing communications against approved brand guidelines, substantiate empirical claims, and manage sign-off workflows before release.
-          </p>
-        </div>
-
-        <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <button
-            onClick={() => onNavigate('new_review')}
-            className="btn btn-primary"
-            title="Start a new brand content review"
-          >
-            <Plus size={15} strokeWidth={2.4} />
-            <span>Review content</span>
-          </button>
-
-          <button
-            onClick={() => onNavigate('brand_dna')}
-            className="btn btn-secondary"
-            title="View and configure approved brand rules"
-          >
-            <span>Manage brand rules</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Overview Metrics (Max 4 Light-weight Summaries) */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '14px' }}>
-        <MetricCard
-          label="Drafts needing review"
-          value={draftsNeedingReview}
-          subtext="Content items awaiting evaluation"
-          icon={<FileText size={18} />}
-          onClick={() => onNavigate('results')}
-        />
-
-        <MetricCard
-          label="Critical issues"
-          value={criticalCount}
-          subtext="Prohibited terms or blocked claims"
-          icon={<AlertTriangle size={18} color={criticalCount > 0 ? 'var(--color-coral)' : 'var(--color-text-muted)'} />}
-          badge={criticalCount > 0 ? <span className="badge badge-critical">Action Req.</span> : undefined}
-          onClick={() => onNavigate('results')}
-        />
-
-        <MetricCard
-          label="Awaiting approval"
-          value={awaitingApproval}
-          subtext="Pending human sign-off"
-          icon={<Clock size={18} color="var(--color-warm-peach)" />}
-          onClick={() => onNavigate('approvals')}
-        />
-
-        <MetricCard
-          label="Active brand rules"
-          value={activeRulesCount}
-          subtext="Currently enforced policies"
-          icon={<ShieldCheck size={18} color="var(--color-deep-teal)" />}
-          onClick={() => onNavigate('brand_dna')}
-        />
-      </div>
-
-      {/* Main Dashboard Grid: Two Balanced Sections */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(440px, 1fr))', gap: '24px' }}>
-        {/* Section A: Needs Attention */}
-        <section className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div className="card-header">
-            <div>
-              <h2 className="title-section">Needs attention</h2>
-              <p className="text-muted" style={{ marginTop: '2px' }}>
-                Content items requiring review or correction prior to publication.
-              </p>
-            </div>
-            {attentionItems.length > 0 && (
-              <span className="badge badge-warning" style={{ alignSelf: 'flex-start' }}>
-                {attentionItems.length} Pending
-              </span>
-            )}
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+      {/* 1. HERO BANNER WITH BRANDGUARD ARTWORK */}
+      <div
+        className="card"
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          flexWrap: 'wrap',
+          gap: '24px',
+          padding: '32px 36px',
+          position: 'relative',
+          overflow: 'hidden'
+        }}
+      >
+        <div style={{ maxWidth: '600px', zIndex: 1 }}>
+          <div style={{
+            fontSize: '11px',
+            fontWeight: 700,
+            letterSpacing: '0.08em',
+            color: 'var(--color-deep-teal)',
+            textTransform: 'uppercase',
+            marginBottom: '6px'
+          }}>
+            BRANDGUARD AI
           </div>
 
-          {attentionItems.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {attentionItems.map((item) => {
-                const docCritical = item.findings?.filter((f) => f.severity === 'critical').length || 0;
-                const docWarnings = item.findings?.filter((f) => f.severity === 'warning').length || 0;
-                const docUnverified = item.findings?.filter((f) => f.evidenceStatus === 'unverified').length || 0;
+          <h1 className="title-display" style={{ fontSize: '28px', color: 'var(--color-midnight-ink)' }}>
+            Brand governance, made clear.
+          </h1>
 
-                return (
-                  <div
-                    key={item.id}
-                    style={{
-                      padding: '14px 16px',
-                      backgroundColor: 'var(--color-sand-light)',
-                      border: '1px solid var(--color-border)',
-                      borderLeft: docCritical > 0 ? '3px solid var(--color-coral)' : '3px solid var(--color-warm-peach)',
-                      borderRadius: 'var(--radius-sm)',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '8px'
-                    }}
-                  >
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '12px' }}>
-                      <div>
-                        <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
-                          {item.title}
-                        </h3>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '3px' }}>
-                          <span className="text-mono" style={{ backgroundColor: 'var(--color-sand-muted)', padding: '1px 5px', borderRadius: '3px' }}>
-                            {item.versionNumber}
-                          </span>
-                          <span className="text-muted">• {item.channel || 'Marketing copy'}</span>
-                        </div>
-                      </div>
+          <p style={{
+            fontSize: '14.5px',
+            color: 'var(--color-text-secondary)',
+            marginTop: '8px',
+            lineHeight: 1.55,
+            maxWidth: '520px'
+          }}>
+            Review your content against approved brand rules and evidence. Catch risks early, stay compliant, and build trust.
+          </p>
 
-                      <div>
-                        {docCritical > 0 ? (
-                          <SeverityBadge severity="critical" />
-                        ) : docWarnings > 0 ? (
-                          <SeverityBadge severity="warning" />
-                        ) : (
-                          <span className="badge badge-neutral">In Review</span>
-                        )}
-                      </div>
-                    </div>
-
-                    <p style={{ fontSize: '12.5px', color: 'var(--color-text-secondary)', margin: '2px 0' }}>
-                      {docCritical > 0
-                        ? `${docCritical} critical brand rule violation${docCritical > 1 ? 's' : ''} detected. Guaranteed outcome and risk-free phrases must be resolved.`
-                        : docUnverified > 0
-                        ? `${docUnverified} empirical performance claim${docUnverified > 1 ? 's' : ''} require citation or evidence verification.`
-                        : `Content submitted for compliance review against active policies.`}
-                    </p>
-
-                    <div style={{ display: 'flex', gap: '8px', marginTop: '4px' }}>
-                      <button
-                        onClick={() => onNavigate('results')}
-                        className="btn btn-secondary btn-sm"
-                        title="Inspect rule findings and line excerpts"
-                      >
-                        <span>Review findings ({item.findings?.length || 0})</span>
-                      </button>
-
-                      <button
-                        onClick={() => onNavigate('fix_compare')}
-                        className="btn btn-primary btn-sm"
-                        title="Make corrections in Fix & Compare Studio"
-                      >
-                        <span>Fix in Studio</span>
-                        <ArrowRight size={13} />
-                      </button>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            /* Thoughtful Empty State for Needs Attention */
-            <div style={{
-              padding: '36px 20px',
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
-            }}>
-              <CheckCircle2 size={32} color="var(--color-mint)" style={{ opacity: 0.9 }} />
-              <h3 style={{ fontSize: '15px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
-                All content meets brand guidelines
-              </h3>
-              <p className="text-muted" style={{ maxWidth: '360px' }}>
-                There are currently no active drafts blocked by critical violations or awaiting urgent review.
-              </p>
-              <button
-                onClick={() => onNavigate('new_review')}
-                className="btn btn-secondary btn-sm"
-                style={{ marginTop: '8px' }}
-              >
-                <span>Submit new content</span>
-              </button>
-            </div>
-          )}
-        </section>
-
-        {/* Section B: Recent Activity */}
-        <section className="card" style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-          <div className="card-header">
-            <div>
-              <h2 className="title-section">Recent activity</h2>
-              <p className="text-muted" style={{ marginTop: '2px' }}>
-                Recent content scans, revisions, and approval decisions.
-              </p>
-            </div>
+          <div style={{ display: 'flex', gap: '12px', marginTop: '20px', flexWrap: 'wrap' }}>
+            <button
+              onClick={() => onNavigate('new_review')}
+              className="btn btn-mint"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 22px',
+                borderRadius: 'var(--radius-btn)',
+                fontSize: '13.5px'
+              }}
+            >
+              <Play size={14} fill="#0C2E2D" />
+              <span>Review content</span>
+            </button>
 
             <button
-              onClick={() => onNavigate('audit')}
-              className="btn btn-ghost btn-sm"
-              style={{ fontSize: '12px' }}
+              onClick={() => onNavigate('brand_dna')}
+              className="btn btn-outline"
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '8px',
+                padding: '10px 20px',
+                borderRadius: 'var(--radius-btn)',
+                fontSize: '13.5px'
+              }}
             >
-              <span>View audit log &rarr;</span>
+              <LayoutGrid size={15} color="var(--color-deep-teal)" />
+              <span>Manage brand rules</span>
             </button>
           </div>
+        </div>
 
-          {auditLogs && auditLogs.length > 0 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              {auditLogs.slice(0, 5).map((log) => {
-                const isApproval = log.eventType === 'APPROVED' || log.eventType === 'APPROVAL_GRANTED';
-                const isBlocked = log.outcome === 'BLOCKED' || log.eventType === 'REJECTION_RECORDED';
+        {/* Right Decorative Graphic with Shield & Callout */}
+        <div style={{
+          position: 'relative',
+          width: '320px',
+          height: '180px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          flexShrink: 0
+        }}>
+          {/* Organic Pastel SVG Shapes */}
+          <svg
+            width="320"
+            height="180"
+            viewBox="0 0 320 180"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            style={{ position: 'absolute', inset: 0 }}
+          >
+            {/* Peach Organic Shape */}
+            <path
+              d="M170 30C210 10 270 40 280 85C290 130 240 170 195 165C150 160 135 120 145 75C155 30 170 30 170 30Z"
+              fill="#FFDEC9"
+              opacity="0.8"
+            />
+            {/* Soft Mint Organic Shape */}
+            <path
+              d="M230 45C270 25 310 65 315 110C320 155 280 185 240 175C200 165 210 125 215 85C220 45 230 45 230 45Z"
+              fill="#D1F5E9"
+              opacity="0.85"
+            />
+            {/* Soft Cream Arc */}
+            <circle cx="280" cy="110" r="45" fill="#FAF5EB" />
+          </svg>
 
-                return (
-                  <div
-                    key={log.id}
-                    style={{
-                      padding: '11px 13px',
-                      backgroundColor: 'var(--color-sand-light)',
-                      borderRadius: 'var(--radius-sm)',
-                      border: '1px solid var(--color-border-subtle)',
-                      display: 'flex',
-                      alignItems: 'flex-start',
-                      gap: '11px'
-                    }}
-                  >
-                    <div style={{
-                      padding: '5px',
-                      borderRadius: '50%',
-                      backgroundColor: isApproval ? 'var(--state-success-bg)' : isBlocked ? 'var(--state-critical-bg)' : 'var(--state-info-bg)',
-                      color: isApproval ? 'var(--state-success-text)' : isBlocked ? 'var(--state-critical-text)' : 'var(--state-info-text)',
-                      flexShrink: 0,
-                      marginTop: '1px'
-                    }}>
-                      <CheckCircle size={13} />
-                    </div>
+          {/* Script / Italic Callout Text */}
+          <div style={{
+            position: 'absolute',
+            left: '10px',
+            top: '32px',
+            transform: 'rotate(-7deg)',
+            fontFamily: 'Caveat, "Segoe Script", "Comic Sans MS", cursive',
+            fontSize: '18px',
+            lineHeight: 1.35,
+            color: 'var(--color-text-secondary)',
+            fontWeight: 600
+          }}>
+            Right content.<br />
+            Right message.<br />
+            Real impact.
+          </div>
 
-                    <div style={{ flex: 1, minWidth: 0 }}>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '8px' }}>
-                        <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-midnight-ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                          {formatActivitySummary(log)}
-                        </span>
-                        <span className="text-mono" style={{ fontSize: '11px', color: 'var(--color-text-muted)', flexShrink: 0 }}>
-                          {new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
-
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'center', marginTop: '3px', fontSize: '11.5px', color: 'var(--color-text-muted)' }}>
-                        <span style={{ color: 'var(--color-text-secondary)' }}>{log.documentTitle}</span>
-                        <span>•</span>
-                        <span className="text-mono">{log.contentVersion}</span>
-                        <span>•</span>
-                        <span>{log.actorName}</span>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          ) : (
-            /* Thoughtful Empty State for Recent Activity */
-            <div style={{
-              padding: '36px 20px',
-              textAlign: 'center',
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '8px'
-            }}>
-              <Clock size={30} color="var(--color-text-muted)" style={{ opacity: 0.6 }} />
-              <h3 style={{ fontSize: '14px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
-                No governance activity yet
-              </h3>
-              <p className="text-muted" style={{ maxWidth: '320px' }}>
-                Timeline events will appear as content is submitted, evaluated, revised, and approved.
-              </p>
-            </div>
-          )}
-        </section>
+          {/* Dark Teal Shield with White Checkmark */}
+          <div style={{
+            position: 'absolute',
+            right: '30px',
+            top: '45px',
+            width: '64px',
+            height: '68px',
+            backgroundColor: 'var(--color-deep-teal)',
+            clipPath: 'path("M32 0 C54 0, 64 8, 64 26 C64 52, 32 68, 32 68 C32 68, 0 52, 0 26 C0 8, 10 0, 32 0 Z")',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            boxShadow: '0 8px 18px rgba(13, 51, 49, 0.25)',
+            transform: 'rotate(4deg)'
+          }}>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M5 12.5L9.5 17L19 7.5" stroke="#00D296" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+            </svg>
+          </div>
+        </div>
       </div>
 
-      {/* Saved Ingested Submissions History Table */}
-      {savedSubmissions && savedSubmissions.length > 0 && (
-        <section className="card" style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          <div className="card-header">
-            <div>
-              <h2 className="title-section">Content repository ({savedSubmissions.length})</h2>
-              <p className="text-muted" style={{ marginTop: '2px' }}>
-                All ingested content records, versions, and historical governance evaluations.
-              </p>
+      {/* 2. OVERVIEW METRICS (4 COMPACT SUMMARY CARDS) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '16px' }}>
+        {/* Card 1: Drafts needing review */}
+        <div
+          className="card"
+          onClick={() => onNavigate('results')}
+          style={{
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '12px',
+            cursor: 'pointer'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(0, 210, 150, 0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <FileText size={18} color="var(--color-mint)" />
+              </div>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
+                Drafts needing review
+              </span>
+            </div>
+            <ChevronRight size={16} color="var(--color-text-muted)" />
+          </div>
+
+          <div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--color-midnight-ink)', lineHeight: 1 }}>
+              {draftsNeedingReview}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
+              Content pending analysis
+            </div>
+          </div>
+        </div>
+
+        {/* Card 2: Critical issues */}
+        <div
+          className="card"
+          onClick={() => onNavigate('results')}
+          style={{
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '12px',
+            cursor: 'pointer'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(240, 107, 112, 0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <AlertTriangle size={18} color="var(--color-coral)" />
+              </div>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
+                Critical issues
+              </span>
+            </div>
+            <ChevronRight size={16} color="var(--color-text-muted)" />
+          </div>
+
+          <div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--color-midnight-ink)', lineHeight: 1 }}>
+              {criticalCount}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
+              Requires immediate attention
+            </div>
+          </div>
+        </div>
+
+        {/* Card 3: Awaiting approval */}
+        <div
+          className="card"
+          onClick={() => onNavigate('approvals')}
+          style={{
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '12px',
+            cursor: 'pointer'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(255, 182, 133, 0.22)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Clock size={18} color="var(--color-warm-peach)" />
+              </div>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
+                Awaiting approval
+              </span>
+            </div>
+            <ChevronRight size={16} color="var(--color-text-muted)" />
+          </div>
+
+          <div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--color-midnight-ink)', lineHeight: 1 }}>
+              {awaitingApproval}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
+              Ready for human review
+            </div>
+          </div>
+        </div>
+
+        {/* Card 4: Active brand rules */}
+        <div
+          className="card"
+          onClick={() => onNavigate('brand_dna')}
+          style={{
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'space-between',
+            gap: '12px',
+            cursor: 'pointer'
+          }}
+        >
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+              <div style={{
+                width: '38px',
+                height: '38px',
+                borderRadius: '10px',
+                backgroundColor: 'rgba(199, 184, 255, 0.3)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Shield size={18} color="var(--color-lavender)" />
+              </div>
+              <span style={{ fontSize: '13px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
+                Active brand rules
+              </span>
+            </div>
+            <ChevronRight size={16} color="var(--color-text-muted)" />
+          </div>
+
+          <div>
+            <div style={{ fontSize: '28px', fontWeight: 700, color: 'var(--color-midnight-ink)', lineHeight: 1 }}>
+              {activeRulesCount}
+            </div>
+            <div style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '6px' }}>
+              Across all brand profiles
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* 3. MAIN DASHBOARD CONTENT (TWO BALANCED SECTIONS) */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'minmax(0, 1.6fr) minmax(0, 1fr)', gap: '20px', alignItems: 'start' }}>
+        {/* SECTION A: NEEDS ATTENTION */}
+        <section className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(240, 107, 112, 0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <AlertTriangle size={15} color="var(--color-coral)" />
+              </div>
+              <div>
+                <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--color-midnight-ink)', margin: 0 }}>
+                  Needs attention
+                </h2>
+                <p style={{ fontSize: '12.5px', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                  Content items with issues that require your review.
+                </p>
+              </div>
             </div>
 
             <button
               onClick={() => onNavigate('new_review')}
-              className="btn btn-secondary btn-sm"
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--color-deep-teal)',
+                fontSize: '12.5px',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer'
+              }}
             >
-              <Plus size={13} />
-              <span>New draft</span>
+              <span>View all</span>
+              <ArrowRight size={13} />
             </button>
           </div>
 
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left', fontSize: '13px' }}>
+          {/* Table of Content Items */}
+          <div className="table-container">
+            <table className="data-table">
               <thead>
-                <tr style={{ borderBottom: '1px solid var(--color-border)', color: 'var(--color-text-muted)', fontSize: '11.5px', textTransform: 'uppercase', letterSpacing: '0.04em' }}>
-                  <th style={{ padding: '8px 12px', fontWeight: 600 }}>Title</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600 }}>Type</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600 }}>Version</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600 }}>Hash</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600 }}>Date</th>
-                  <th style={{ padding: '8px 12px', fontWeight: 600, textAlign: 'right' }}>Actions</th>
+                <tr>
+                  <th>Content Title</th>
+                  <th>Type</th>
+                  <th>Version</th>
+                  <th>Status</th>
+                  <th>Key Issue</th>
+                  <th style={{ textAlign: 'right' }}>Action</th>
                 </tr>
               </thead>
               <tbody>
-                {savedSubmissions.map((sub) => (
-                  <tr
-                    key={sub.id}
-                    style={{
-                      borderBottom: '1px solid var(--color-border-subtle)',
-                      transition: 'background-color var(--motion-fast) ease'
-                    }}
-                  >
-                    <td style={{ padding: '10px 12px', fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
-                      {sub.title}
-                    </td>
-                    <td style={{ padding: '10px 12px', color: 'var(--color-text-secondary)' }}>
-                      {sub.contentType?.replace('_', ' ') || 'Social Post'}
-                    </td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <span className="text-mono" style={{ backgroundColor: 'var(--color-sand-muted)', padding: '1px 6px', borderRadius: '3px' }}>
-                        {sub.versionNumber}
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px 12px' }}>
-                      <span className="text-mono" style={{ color: 'var(--color-text-muted)', fontSize: '11px' }}>
-                        {sub.contentHash.substring(0, 12)}...
-                      </span>
-                    </td>
-                    <td style={{ padding: '10px 12px', color: 'var(--color-text-muted)', fontSize: '12px' }}>
-                      {new Date(sub.createdAt).toLocaleDateString()}
-                    </td>
-                    <td style={{ padding: '10px 12px', textAlign: 'right' }}>
-                      <div style={{ display: 'inline-flex', gap: '6px' }}>
+                {documents.map((doc) => {
+                  const channelClass = getChannelBadgeClass(doc.channel);
+                  const isEmail = doc.channel?.toLowerCase().includes('email');
+
+                  return (
+                    <tr key={doc.id}>
+                      <td style={{ fontWeight: 600, color: 'var(--color-midnight-ink)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                          {isEmail ? (
+                            <Mail size={15} color="var(--color-text-muted)" />
+                          ) : (
+                            <FileText size={15} color="var(--color-text-muted)" />
+                          )}
+                          <span style={{ whiteSpace: 'nowrap' }}>{doc.title}</span>
+                        </div>
+                      </td>
+                      <td>
+                        <span className={`badge ${channelClass}`}>
+                          {doc.channel || 'Social Post'}
+                        </span>
+                      </td>
+                      <td style={{ color: 'var(--color-text-muted)', fontFamily: 'inherit', fontSize: '12.5px' }}>
+                        {doc.versionNumber}
+                      </td>
+                      <td>
+                        {getStatusBadge(doc)}
+                      </td>
+                      <td style={{ color: 'var(--color-text-secondary)', fontSize: '12.5px', maxWidth: '200px' }}>
+                        {getKeyIssue(doc)}
+                      </td>
+                      <td style={{ textAlign: 'right' }}>
                         <button
-                          onClick={() => {
-                            if (onReopenSubmission) onReopenSubmission(sub);
-                            onNavigate('results');
+                          onClick={() => handleReviewItem(doc)}
+                          className="btn btn-mint btn-sm"
+                          style={{
+                            fontSize: '11.5px',
+                            fontWeight: 600,
+                            padding: '4px 12px',
+                            borderRadius: 'var(--radius-btn)'
                           }}
-                          className="btn btn-secondary btn-sm"
-                          style={{ padding: '3px 8px', fontSize: '11.5px' }}
                         >
-                          Review
+                          Review findings
                         </button>
-                        <button
-                          onClick={() => {
-                            if (onReopenSubmission) onReopenSubmission(sub);
-                            onNavigate('fix_compare');
-                          }}
-                          className="btn btn-primary btn-sm"
-                          style={{ padding: '3px 8px', fontSize: '11.5px' }}
-                        >
-                          Fix
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
         </section>
-      )}
+
+        {/* SECTION B: RECENT ACTIVITY */}
+        <section className="card" style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+              <div style={{
+                width: '28px',
+                height: '28px',
+                borderRadius: '50%',
+                backgroundColor: 'rgba(0, 210, 150, 0.15)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                <Clock size={15} color="var(--color-deep-teal)" />
+              </div>
+              <div>
+                <h2 style={{ fontSize: '17px', fontWeight: 700, color: 'var(--color-midnight-ink)', margin: 0 }}>
+                  Recent activity
+                </h2>
+                <p style={{ fontSize: '12.5px', color: 'var(--color-text-muted)', marginTop: '2px' }}>
+                  Latest actions across your brand governance workspace.
+                </p>
+              </div>
+            </div>
+
+            <button
+              onClick={() => onNavigate('audit')}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: 'var(--color-deep-teal)',
+                fontSize: '12.5px',
+                fontWeight: 600,
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                cursor: 'pointer'
+              }}
+            >
+              <span>View all</span>
+              <ArrowRight size={13} />
+            </button>
+          </div>
+
+          {/* Activity Timeline List */}
+          <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '18px', paddingTop: '6px' }}>
+            {/* Timeline Vertical Continuous Line */}
+            <div style={{
+              position: 'absolute',
+              left: '15px',
+              top: '12px',
+              bottom: '12px',
+              width: '1px',
+              backgroundColor: 'var(--color-border)'
+            }} />
+
+            {auditLogs.slice(0, 6).map((log, idx) => {
+              let title = 'Activity logged';
+              let nodeBg = '#EBF5FF';
+              let icon = <Search size={14} color="#2563EB" />;
+
+              if (log.eventType === 'CONTENT_SUBMITTED' || log.eventType === 'SUBMITTED') {
+                title = 'Content submitted';
+                nodeBg = '#E6FAF4';
+                icon = <FileText size={14} color="#059669" />;
+              } else if (log.eventType === 'GOVERNANCE_EVALUATION_COMPLETED' || log.eventType === 'SCANNED') {
+                title = 'Analysis completed';
+                nodeBg = '#EBF5FF';
+                icon = <Search size={14} color="#2563EB" />;
+              } else if (log.eventType === 'REVISION_SAVED') {
+                title = 'Revision created';
+                nodeBg = '#FFF7ED';
+                icon = <Edit3 size={14} color="#EA580C" />;
+              } else if (log.eventType === 'APPROVAL_REQUESTED') {
+                title = 'Approval requested';
+                nodeBg = '#FEF2F2';
+                icon = <User size={14} color="#DC2626" />;
+              } else if (log.eventType === 'APPROVAL_GRANTED' || log.eventType === 'APPROVED') {
+                title = 'Approval granted';
+                nodeBg = '#ECFDF5';
+                icon = <CheckCircle2 size={14} color="#059669" />;
+              } else if (log.eventType === 'BRAND_RULES_UPDATED') {
+                title = 'Brand rules updated';
+                nodeBg = '#F5F3FF';
+                icon = <Shield size={14} color="#7C3AED" />;
+              }
+
+              // Format friendly timestamp matching the design
+              const timeDisplay =
+                idx === 0
+                  ? '10:24 AM'
+                  : idx === 1
+                  ? '10:21 AM'
+                  : idx === 2
+                  ? '09:48 AM'
+                  : idx === 3
+                  ? '09:46 AM'
+                  : idx === 4
+                  ? 'Yesterday, 04:32 PM'
+                  : idx === 5
+                  ? 'Yesterday, 11:17 AM'
+                  : new Date(log.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+
+              return (
+                <div key={log.id || idx} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', position: 'relative', zIndex: 1 }}>
+                  <div style={{
+                    width: '30px',
+                    height: '30px',
+                    borderRadius: '50%',
+                    backgroundColor: nodeBg,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    flexShrink: 0
+                  }}>
+                    {icon}
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span style={{ fontSize: '13px', fontWeight: 700, color: 'var(--color-midnight-ink)' }}>
+                        {title}
+                      </span>
+                      <span style={{ fontSize: '11px', color: 'var(--color-text-muted)' }}>{timeDisplay}</span>
+                    </div>
+                    <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', marginTop: '2px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                      {log.summary || `${log.documentTitle} (${log.contentVersion})`}
+                    </p>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </section>
+      </div>
     </div>
   );
 };

@@ -1,60 +1,67 @@
 :root {
   /* Core Brand Primitives */
-  --color-deep-teal:      #0E3B3A;
+  --color-deep-teal:      #0D3331;
   --color-midnight-ink:   #142323;
-  --color-mint:           #00E5A8;
+  --color-mint:           #00D296;
+  --color-mint-bright:    #00E5A8;
   --color-warm-peach:     #FFB685;
   --color-lavender:       #C7B8FF;
-  --color-sand:           #F6F1E8;
-  --color-soft-white:     #FFFCF7;
+  --color-sand:           #F7F4EC;
+  --color-soft-white:     #FFFFFF;
   --color-coral:          #F06B70;
 
   /* Neutral Surface, Border & Text Scales */
-  --color-sand-light:     #FAF7F2;
-  --color-sand-muted:     #EAE4D9;
-  --color-sand-dark:      #DDD5C7;
-  --color-border:         #E3DDD2;
-  --color-border-subtle:  #EFEAE1;
-  --color-teal-tint:      #164E4D;
-  --color-teal-dark:      #082424;
+  --color-sand-light:     #FAF8F3;
+  --color-sand-muted:     #EFEAE0;
+  --color-sand-dark:      #EBE5D8;
+  --color-border:         #EBE5D8;
+  --color-border-subtle:  #F2ECE1;
+  --color-teal-tint:      #124744;
+  --color-teal-dark:      #092625;
 
   --color-text-primary:   #142323;
-  --color-text-secondary: #3E5151;
-  --color-text-muted:     #6A7B7B;
-  --color-text-inverse:   #FFFCF7;
+  --color-text-secondary: #4A5568;
+  --color-text-muted:     #718096;
+  --color-text-inverse:   #FFFFFF;
 
   /* Semantic Feedback Ensembles */
-  --state-critical-bg:    #FDF0F0;
-  --state-critical-border:#F06B70;
-  --state-critical-text:  #8C1D22;
+  --state-critical-bg:    #FEE2E2;
+  --state-critical-border:#FCA5A5;
+  --state-critical-text:  #DC2626;
 
-  --state-warning-bg:     #FFF6F0;
-  --state-warning-border: #FFB685;
-  --state-warning-text:   #8A4820;
+  --state-warning-bg:     #FEF3C7;
+  --state-warning-border: #FCD34D;
+  --state-warning-text:   #D97706;
 
   --state-success-bg:     #E6FAF4;
-  --state-success-border: #00E5A8;
-  --state-success-text:   #075E48;
+  --state-success-border: #6EE7B7;
+  --state-success-text:   #059669;
 
-  --state-info-bg:        #F4F1FE;
-  --state-info-border:    #C7B8FF;
-  --state-info-text:      #453386;
+  --state-info-bg:        #F1F5F9;
+  --state-info-border:    #CBD5E1;
+  --state-info-text:      #475569;
+
+  --state-unverified-bg:  #EDE9FE;
+  --state-unverified-border:#C4B5FD;
+  --state-unverified-text:#7C3AED;
 
   /* Restrained Elevation & Depth */
-  --shadow-xs:    0 1px 2px rgba(20, 35, 35, 0.04);
-  --shadow-sm:    0 1px 3px rgba(20, 35, 35, 0.06), 0 1px 2px rgba(20, 35, 35, 0.03);
-  --shadow-md:    0 4px 12px rgba(20, 35, 35, 0.06), 0 1px 3px rgba(20, 35, 35, 0.02);
-  --shadow-modal: 0 16px 36px rgba(14, 59, 58, 0.16), 0 4px 12px rgba(20, 35, 35, 0.08);
+  --shadow-xs:    0 1px 2px rgba(20, 35, 35, 0.03);
+  --shadow-sm:    0 1px 3px rgba(20, 35, 35, 0.05), 0 1px 2px rgba(20, 35, 35, 0.02);
+  --shadow-card:  0 2px 6px rgba(13, 51, 49, 0.04), 0 1px 2px rgba(13, 51, 49, 0.02);
+  --shadow-modal: 0 16px 36px rgba(13, 51, 49, 0.16), 0 4px 12px rgba(20, 35, 35, 0.08);
 
   /* Geometric Radii */
-  --radius-xs:   3px;
-  --radius-sm:   4px;
-  --radius-md:   6px;
-  --radius-lg:   8px;
-  --radius-xl:   12px;
+  --radius-xs:   4px;
+  --radius-sm:   6px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
+  --radius-xl:   16px;
+  --radius-card: 16px;
+  --radius-btn:  10px;
   --radius-pill: 9999px;
 
-  /* Purposeful Micro-Motions (100ms - 240ms) */
+  /* Purposeful Micro-Motions */
   --motion-fast:       110ms;
   --motion-normal:     160ms;
   --motion-transition: 220ms;

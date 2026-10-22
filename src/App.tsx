@@ -58,8 +58,9 @@ export const App: React.FC = () => {
     brandProfiles[0] ||
     storageService.resetToDefaultSeed()[0];
 
+  const [selectedDocId, setSelectedDocId] = useState<string>(() => INITIAL_DOCUMENTS[0]?.id || 'doc-001');
   const rules = activeProfile.rules || [];
-  const activeDoc = documents[0];
+  const activeDoc = documents.find((d) => d.id === selectedDocId) || documents[0];
 
   const showToast = (message: string) => {
     setToastMessage(message);
@@ -556,6 +557,10 @@ export const App: React.FC = () => {
           onNavigate={setCurrentPage}
           savedSubmissions={savedSubmissions}
           onReopenSubmission={handleReopenSubmission}
+          onSelectDocToReview={(doc) => {
+            setSelectedDocId(doc.id);
+            setCurrentPage('results');
+          }}
         />
       )}
 

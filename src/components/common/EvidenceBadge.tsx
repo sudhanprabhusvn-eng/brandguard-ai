@@ -29,7 +29,7 @@ export const EvidenceBadge: React.FC<EvidenceBadgeProps> = ({ status, citation, 
 
   if (status === 'unverified') {
     return (
-      <span className={`badge badge-warning ${className}`} title="Substantiating evidence is not currently in approved library (claim is not proven false)">
+      <span className={`badge badge-unverified ${className}`} title="Substantiating evidence is not currently in approved library (claim is not proven false)">
         <HelpCircle size={12} strokeWidth={2.2} />
         <span>Unverified Claim</span>
       </span>
