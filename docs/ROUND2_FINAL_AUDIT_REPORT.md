@@ -166,7 +166,7 @@ All actual commands defined in `package.json` were executed and verified:
 | Submission Requirement | Status | Current Reality & Location | Action Needed to Complete |
 | :--- | :---: | :--- | :--- |
 | **1. Working Project URL** | **CONDITIONALLY READY** | Runs locally at `http://127.0.0.1:5173/` or `http://localhost:4173/`. Ready for 1-click deployment to Vercel/Netlify. | Connect git repository to Vercel or Netlify (free tier) and deploy static `dist/` directory. |
-| **2. Source Repository URL** | **PENDING** | Project exists as a local folder (`d:\MAIN PROJECT\CODE-AXIS-remediated\CODE AXIS`). Git repository not yet initialized. | Run `git init`, commit project files, and push to GitHub or GitLab. |
+| **2. Source Repository URL** | **COMPLETE** | Published to GitHub: `https://github.com/sudhanprabhusvn-eng/brandguard-ai` (branch `main`). | None. Successfully verified with zero exposed secrets. |
 | **3. Updated Project PDF** | **PENDING** | No PDF document currently exists in the workspace. | Export this audit report or the demo guide to PDF format via browser print. |
 | **4. Completed Features List** | **COMPLETE** | Fully documented in `README.md` and verified across 8 automated test suites. | Included in submission README and PDF. |
 | **5. Technology & Implementation** | **COMPLETE** | Documented in `README.md`, `DEPLOYMENT.md`, and `KNOWN_LIMITATIONS.md`. | Included in submission documentation. |
@@ -237,14 +237,13 @@ BrandGuard AI is in an exceptional technical state. It represents an enterprise-
 - [x] Full core workflow validated end-to-end
 - [x] Honest disclosures for storage and demo roles in UI
 - [x] Formula injection protection verified on CSV export
-- [ ] Initialize git repository and push to GitHub/GitLab
+- [x] Source code published to GitHub: https://github.com/sudhanprabhusvn-eng/brandguard-ai
 - [ ] Deploy static `dist/` bundle to Vercel or Netlify (free tier)
 - [ ] Export submission PDF
 
 ### G. Exact Fixes Required (Ordered by Priority)
-1. **Initialize Git & Push**: Run `git init`, add remote, and push project to GitHub.
-2. **Deploy to Vercel/Netlify**: Import GitHub repository into Vercel or Netlify for an instant live URL.
-3. **Generate Submission PDF**: Print this report to PDF for hackathon attachment.
+1. **Deploy to Vercel/Netlify**: Import the GitHub repository into Vercel or Netlify (or supply personal token) for an instant live URL.
+2. **Generate Submission PDF**: Print this report to PDF for hackathon attachment.
 
 ### H. Files Changed During Audit
 1. [`src/services/aiContextualService.ts`](file:///d:/MAIN%20PROJECT/CODE-AXIS-remediated/CODE%20AXIS/src/services/aiContextualService.ts): Fixed unused `_apiKey` destructuring to eliminate lint warning; added missing `'x-goog-api-key'` header to `requestAiCorrection`.
