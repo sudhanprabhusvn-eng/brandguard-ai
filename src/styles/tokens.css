@@ -1,69 +1,64 @@
 :root {
-  /* Typography System: Human-designed geometric & tabular monospace */
-  --font-sans:            'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  --font-mono:            'IBM Plex Mono', 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
-
   /* Core Brand Primitives */
-  --color-deep-teal:      #0B2927;
-  --color-midnight-ink:   #0F172A;
-  --color-mint:           #059669;
-  --color-mint-bright:    #10B981;
-  --color-warm-peach:     #F59E0B;
-  --color-lavender:       #8B5CF6;
-  --color-sand:           #F8FAFC;
+  --color-deep-teal:      #0D3331;
+  --color-midnight-ink:   #142323;
+  --color-mint:           #00D296;
+  --color-mint-bright:    #00E5A8;
+  --color-warm-peach:     #FFB685;
+  --color-lavender:       #C7B8FF;
+  --color-sand:           #F7F4EC;
   --color-soft-white:     #FFFFFF;
-  --color-coral:          #EF4444;
+  --color-coral:          #F06B70;
 
-  /* Modern Slate Surface, Border & Text Scales */
-  --color-sand-light:     #FFFFFF;
-  --color-sand-muted:     #F1F5F9;
-  --color-sand-dark:      #E2E8F0;
-  --color-border:         #E2E8F0;
-  --color-border-subtle:  #F1F5F9;
-  --color-border-strong:  #CBD5E1;
-  --color-teal-tint:      #134E4A;
-  --color-teal-dark:      #042F2E;
+  /* Neutral Surface, Border & Text Scales */
+  --color-sand-light:     #FAF8F3;
+  --color-sand-muted:     #EFEAE0;
+  --color-sand-dark:      #EBE5D8;
+  --color-border:         #EBE5D8;
+  --color-border-subtle:  #F2ECE1;
+  --color-teal-tint:      #124744;
+  --color-teal-dark:      #092625;
 
-  --color-text-primary:   #0F172A;
-  --color-text-secondary: #475569;
-  --color-text-muted:     #64748B;
+  --color-text-primary:   #142323;
+  --color-text-secondary: #4A5568;
+  --color-text-muted:     #718096;
   --color-text-inverse:   #FFFFFF;
 
   /* Semantic Feedback Ensembles */
-  --state-critical-bg:    #FEF2F2;
-  --state-critical-border:#FECACA;
+  --state-critical-bg:    #FEE2E2;
+  --state-critical-border:#FCA5A5;
   --state-critical-text:  #DC2626;
 
-  --state-warning-bg:     #FFFBEB;
-  --state-warning-border: #FDE68A;
+  --state-warning-bg:     #FEF3C7;
+  --state-warning-border: #FCD34D;
   --state-warning-text:   #D97706;
 
-  --state-success-bg:     #ECFDF5;
-  --state-success-border: #A7F3D0;
+  --state-success-bg:     #E6FAF4;
+  --state-success-border: #6EE7B7;
   --state-success-text:   #059669;
 
-  --state-info-bg:        #F8FAFC;
-  --state-info-border:    #E2E8F0;
-  --state-info-text:      #334155;
+  --state-info-bg:        #F1F5F9;
+  --state-info-border:    #CBD5E1;
+  --state-info-text:      #475569;
 
-  --state-unverified-bg:  #F5F3FF;
-  --state-unverified-border:#DDD6FE;
+  --state-unverified-bg:  #EDE9FE;
+  --state-unverified-border:#C4B5FD;
   --state-unverified-text:#7C3AED;
 
-  /* Clean Modern Shadows */
-  --shadow-xs:    0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-sm:    0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.03);
-  --shadow-card:  0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
-  --shadow-modal: 0 20px 25px -5px rgba(15, 23, 42, 0.12), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  /* Restrained Elevation & Depth */
+  --shadow-xs:    0 1px 2px rgba(20, 35, 35, 0.03);
+  --shadow-sm:    0 1px 3px rgba(20, 35, 35, 0.05), 0 1px 2px rgba(20, 35, 35, 0.02);
+  --shadow-card:  0 2px 6px rgba(13, 51, 49, 0.04), 0 1px 2px rgba(13, 51, 49, 0.02);
+  --shadow-modal: 0 16px 36px rgba(13, 51, 49, 0.16), 0 4px 12px rgba(20, 35, 35, 0.08);
 
   /* Geometric Radii */
   --radius-xs:   4px;
   --radius-sm:   6px;
-  --radius-md:   8px;
-  --radius-lg:   12px;
+  --radius-md:   10px;
+  --radius-lg:   14px;
   --radius-xl:   16px;
-  --radius-card: 12px;
-  --radius-btn:  8px;
+  --radius-card: 16px;
+  --radius-btn:  10px;
   --radius-pill: 9999px;
 
   /* Purposeful Micro-Motions */

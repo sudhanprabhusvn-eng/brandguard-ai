@@ -145,12 +145,10 @@ export const ApprovalQueuePage: React.FC<ApprovalQueuePageProps> = ({
 
     const reviewerName =
       currentRole === 'approver'
-        ? 'Lead Approver'
+        ? 'J. Doe (Lead Approver)'
         : currentRole === 'admin'
         ? 'System Administrator'
-        : currentRole === 'brand_manager'
-        ? 'Brand Governance Officer'
-        : 'Authorized Reviewer';
+        : 'Demonstration Reviewer';
 
     const result = approvalService.recordDecision({
       brandId: activeItem.brandProfileId,
@@ -226,36 +224,33 @@ export const ApprovalQueuePage: React.FC<ApprovalQueuePageProps> = ({
         )}
       </div>
 
-      {/* Authorization & Governance Persona Status */}
+      {/* Honest Prototype Identity & Authorization Notice */}
       <div
         style={{
-          padding: '12px 18px',
-          backgroundColor: 'var(--color-soft-white)',
-          border: '1px solid var(--color-border)',
+          padding: '12px 16px',
+          backgroundColor: 'var(--color-sand)',
+          border: '1px solid var(--color-sand-dark)',
           borderRadius: 'var(--radius-md)',
-          boxShadow: 'var(--shadow-xs)',
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
           flexWrap: 'wrap',
-          gap: '12px',
-          fontSize: '13px',
+          gap: '10px',
+          fontSize: '12.5px',
           color: 'var(--color-midnight-ink)'
         }}
       >
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <UserCheck size={18} color="var(--color-mint)" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <UserCheck size={16} color="var(--color-deep-teal)" />
           <span>
-            <strong>Active Governance Session:</strong> Acting as <strong style={{ textTransform: 'capitalize' }}>{currentRole.replace('_', ' ')}</strong>.
-            {isApproverRole
-              ? ' You have full compliance authority to approve, reject, or request changes on pending submissions.'
-              : ' Read-only gate for non-approvers. Switch your workspace role to Approver or Brand Manager in the top bar to sign off on submissions.'}
+            <strong>Simulated Persona:</strong> Acting as <strong>{currentRole.replace('_', ' ').toUpperCase()}</strong>.
+            (Client-side demonstration mode; no server-side authentication is enforced in this prototype).
           </span>
         </div>
 
         {!isApproverRole && (
-          <span className="badge badge-warning" style={{ fontSize: '11px', fontWeight: 600 }}>
-            Read-Only Gate (Approver Required)
+          <span className="badge badge-warning" style={{ fontSize: '11px' }}>
+            Switch to Approver in Top Bar to Sign Off
           </span>
         )}
       </div>
@@ -353,7 +348,7 @@ export const ApprovalQueuePage: React.FC<ApprovalQueuePageProps> = ({
                       borderRadius: 'var(--radius-sm)',
                       border: '1px solid var(--color-sand-dark)',
                       fontSize: '12px',
-                      fontFamily: 'var(--font-sans)'
+                      fontFamily: 'Inter, sans-serif'
                     }}
                   />
                 </div>
@@ -632,7 +627,7 @@ export const ApprovalQueuePage: React.FC<ApprovalQueuePageProps> = ({
                     border: '1px solid var(--color-sand-dark)',
                     fontSize: '14px',
                     lineHeight: 1.7,
-                    fontFamily: 'var(--font-sans)'
+                    fontFamily: 'Inter, sans-serif'
                   }}
                 >
                   <div style={{ fontSize: '11.5px', fontWeight: 600, marginBottom: '8px', color: 'var(--color-deep-teal)' }}>
@@ -688,7 +683,7 @@ export const ApprovalQueuePage: React.FC<ApprovalQueuePageProps> = ({
                     fontSize: '14px',
                     lineHeight: 1.7,
                     color: 'var(--color-midnight-ink)',
-                    fontFamily: 'var(--font-sans)'
+                    fontFamily: 'Inter, sans-serif'
                   }}
                 >
                   "{activeItem.rawText}"

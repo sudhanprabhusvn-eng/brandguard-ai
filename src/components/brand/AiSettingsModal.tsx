@@ -154,7 +154,8 @@ export const AiSettingsModal: React.FC<AiSettingsModalProps> = ({
           }}>
             <ShieldCheck size={18} color="var(--color-deep-teal)" style={{ flexShrink: 0, marginTop: '2px' }} />
             <div>
-              <strong>Contextual Intelligence:</strong> BrandGuard AI connects to Google Gemini (<span className="text-mono">gemini-2.5-flash</span>) for semantic tone analysis and smart remediation. Deterministic rule checks run locally at zero latency.
+              <strong>Demo mode:</strong> BrandGuard AI can call Google Gemini using your own API key (<span className="text-mono">gemini-2.5-flash</span>) with zero paid dependencies.
+              Deterministic rule checking works 100% offline at all times.
             </div>
           </div>
 
@@ -232,7 +233,7 @@ export const AiSettingsModal: React.FC<AiSettingsModalProps> = ({
                 </button>
               </div>
               <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginTop: '4px', display: 'block' }}>
-                Stored securely in active session memory. Direct Google Gemini API integration with zero intermediary servers.
+                Kept in this tab session only. Your key is sent to Google for AI requests; do not use a shared production key in this browser-only demo.
               </span>
             </div>
           )}

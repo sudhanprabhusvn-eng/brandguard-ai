@@ -200,7 +200,7 @@ export const App: React.FC = () => {
       ruleVersion: seed[0].version,
       actorName: 'Administrator',
       actorRole: currentRole,
-      summary: 'Restored brand governance profile back to standard baseline.'
+      summary: 'Reset brand profile storage back to NovaPulse demonstration baseline.'
     };
     setAuditLogs((prev) => [auditEvent, ...prev]);
   };
@@ -561,33 +561,6 @@ export const App: React.FC = () => {
             setSelectedDocId(doc.id);
             setCurrentPage('results');
           }}
-          onSelectDocToFix={(doc) => {
-            setSelectedDocId(doc.id);
-            setCurrentPage('fix_compare');
-          }}
-          onSelectDocToApprove={(doc) => {
-            setSelectedDocId(doc.id);
-            setCurrentPage('approvals');
-          }}
-          currentRole={currentRole}
-          onRoleChange={(newRole) => {
-            setCurrentRole(newRole);
-            const roleLabels: Record<string, string> = {
-              creator: 'Content Creator',
-              brand_manager: 'Brand Manager',
-              approver: 'Compliance Approver',
-              admin: 'System Administrator'
-            };
-            showToast(`Switched active persona to ${roleLabels[newRole] || newRole}.`);
-          }}
-          activeProfile={activeProfile}
-          allProfiles={brandProfiles}
-          onSelectProfile={handleSelectProfile}
-          isAiDegraded={isAiDegraded}
-          onToggleAiDegraded={() => {
-            setIsAiDegraded(!isAiDegraded);
-            showToast(`AI Engine ${!isAiDegraded ? 'simulated as Offline (Deterministic fallback)' : 'restored to Dual Active (Gemini)'}.`);
-          }}
         />
       )}
 
@@ -598,7 +571,6 @@ export const App: React.FC = () => {
           onUpdateProfile={handleUpdateProfile}
           onResetSeed={handleResetSeed}
           onShowToast={showToast}
-          currentRole={currentRole}
         />
       )}
 
@@ -611,7 +583,6 @@ export const App: React.FC = () => {
           onNavigate={setCurrentPage}
           isAiDegraded={isAiDegraded}
           onShowToast={showToast}
-          currentRole={currentRole}
         />
       )}
 

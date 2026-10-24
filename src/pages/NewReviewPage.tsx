@@ -39,7 +39,6 @@ interface NewReviewPageProps {
   onNavigate: (page: PageId) => void;
   isAiDegraded: boolean;
   onShowToast?: (message: string) => void;
-  currentRole?: import('../types').PersonaRole;
 }
 
 export const NewReviewPage: React.FC<NewReviewPageProps> = ({
@@ -49,8 +48,7 @@ export const NewReviewPage: React.FC<NewReviewPageProps> = ({
   onScanSubmitted,
   onNavigate,
   isAiDegraded,
-  onShowToast,
-  currentRole
+  onShowToast
 }) => {
   // Brand profiles fallback
   const allProfiles = propProfiles || storageService.loadBrandProfiles();
@@ -317,11 +315,6 @@ export const NewReviewPage: React.FC<NewReviewPageProps> = ({
             <span className="badge badge-neutral" style={{ fontSize: '11px' }}>
               Content Review
             </span>
-            {currentRole && (
-              <span className="badge badge-info" style={{ fontSize: '11px' }}>
-                Authoring as: {currentRole === 'creator' ? 'Content Creator' : currentRole.replace('_', ' ')}
-              </span>
-            )}
           </div>
           <h1 className="title-display">New Content Review</h1>
           <p className="text-muted" style={{ marginTop: '4px', fontSize: '14px' }}>
@@ -542,30 +535,30 @@ export const NewReviewPage: React.FC<NewReviewPageProps> = ({
             <button
               onClick={() => {
                 setText(DEMO_TEST_COPY);
-                setTitle('Q4 Product Launch Announcement');
+                setTitle('Q4 Product Launch Teaser');
                 setUploadedFile(null);
                 setValidationErrors({});
               }}
               className="btn btn-secondary btn-sm"
               style={{ fontSize: '12px' }}
-              title="Load sample copy with unverified claims for compliance evaluation"
+              title="Load standard test draft containing known violations for validation"
             >
               <Zap size={13} color="var(--color-coral)" />
-              <span>Sample: High-Risk Copy</span>
+              <span>Load Test Sample</span>
             </button>
             <button
               onClick={() => {
                 setText(DEMO_COMPLIANT_COPY);
-                setTitle('Enterprise Benchmark Performance Study');
+                setTitle('NovaPulse Enterprise Benchmark Study');
                 setUploadedFile(null);
                 setValidationErrors({});
               }}
               className="btn btn-secondary btn-sm"
               style={{ fontSize: '12px' }}
-              title="Load fully compliant copy with substantiated citations"
+              title="Load compliant copy with approved evidence and disclosures"
             >
               <Sparkles size={13} color="var(--color-mint)" />
-              <span>Sample: Compliant Copy</span>
+              <span>Load Compliant Sample</span>
             </button>
             <button
               onClick={handleClearContent}
@@ -575,7 +568,7 @@ export const NewReviewPage: React.FC<NewReviewPageProps> = ({
               disabled={!text}
             >
               <RotateCcw size={13} />
-              <span>Clear Editor</span>
+              <span>Clear</span>
             </button>
           </div>
         </div>
@@ -634,7 +627,7 @@ export const NewReviewPage: React.FC<NewReviewPageProps> = ({
             fontSize: '14.5px',
             lineHeight: 1.65,
             resize: 'vertical',
-            fontFamily: 'var(--font-sans)',
+            fontFamily: 'Inter, sans-serif',
             color: 'var(--color-text-primary)',
             backgroundColor: 'var(--color-soft-white)',
             outline: 'none',

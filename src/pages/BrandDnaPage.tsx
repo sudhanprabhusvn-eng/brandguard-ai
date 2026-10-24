@@ -27,7 +27,6 @@ interface BrandDnaPageProps {
   onUpdateProfile: (updatedProfile: BrandProfile, versionChangeSummary?: string) => void;
   onResetSeed: () => void;
   onShowToast: (message: string) => void;
-  currentRole?: import('../types').PersonaRole;
 }
 
 const getNowIso = (): string => new Date().toISOString();
@@ -37,8 +36,7 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
   allProfiles,
   onUpdateProfile,
   onResetSeed,
-  onShowToast,
-  currentRole
+  onShowToast
 }) => {
   const [activeTab, setActiveTab] = useState<'all' | RuleCategory | 'evidence' | 'voice_summary'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -195,32 +193,18 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
             >
               ACTIVE GOVERNANCE PROFILE
             </span>
-            {currentRole && (
-              <span
-                style={{
-                  fontSize: '11px',
-                  fontWeight: 600,
-                  backgroundColor: currentRole === 'creator' ? 'rgba(0, 210, 150, 0.18)' : 'rgba(199, 184, 255, 0.3)',
-                  color: 'var(--color-midnight-ink)',
-                  padding: '2px 8px',
-                  borderRadius: 'var(--radius-xs)'
-                }}
-              >
-                Role: {currentRole === 'creator' ? 'Creator (Guidelines Reference)' : currentRole === 'brand_manager' ? 'Brand Manager (Authoring Lead)' : currentRole === 'approver' ? 'Approver (Sign-off Authority)' : 'Administrator'}
-              </span>
-            )}
             {brandProfile.isDemonstration && (
               <span
                 style={{
                   fontSize: '11px',
                   fontWeight: 600,
-                  backgroundColor: 'rgba(5, 150, 105, 0.12)',
-                  color: 'var(--color-mint)',
+                  backgroundColor: 'rgba(255, 182, 133, 0.25)',
+                  color: 'var(--color-midnight-ink)',
                   padding: '2px 8px',
                   borderRadius: 'var(--radius-xs)'
                 }}
               >
-                Standard Baseline
+                ★ Demo Baseline
               </span>
             )}
             <span className="text-mono" style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
@@ -275,10 +259,10 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
               onClick={() => setIsResetConfirmOpen(true)}
               className="btn btn-secondary btn-sm"
               style={{ color: 'var(--color-coral)' }}
-              title="Restore profile back to initial standard baseline"
+              title="Reset profile back to clean NovaPulse initial state"
             >
               <RotateCcw size={13} />
-              <span>Restore Baseline</span>
+              <span>Reset Demo</span>
             </button>
           )}
         </div>
@@ -745,7 +729,7 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
       {isResetConfirmOpen && (
         <ModalDialog
           isOpen={isResetConfirmOpen}
-          title="Restore Brand Baseline Rules"
+          title="Reset BrandGuard Demonstration Data"
           onClose={() => setIsResetConfirmOpen(false)}
           footer={
             <>
@@ -756,17 +740,17 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
                 onClick={() => {
                   onResetSeed();
                   setIsResetConfirmOpen(false);
-                  onShowToast('Brand rules restored to initial baseline.');
+                  onShowToast('BrandGuard reset back to initial NovaPulse demonstration baseline.');
                 }}
                 className="btn btn-danger"
               >
-                Restore Baseline
+                Confirm Reset
               </button>
             </>
           }
         >
           <p style={{ fontSize: '14px', color: 'var(--color-text-primary)', lineHeight: 1.5 }}>
-            This will restore the standard profile to its original v2.1 baseline rules and clear custom rule overrides from local storage.
+            This will restore the NovaPulse demonstration profile to its original v2.1 baseline rules and clear any custom edits from your browser storage.
           </p>
         </ModalDialog>
       )}

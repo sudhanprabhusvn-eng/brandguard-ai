@@ -183,7 +183,7 @@ export const AuditReportsPage: React.FC<AuditReportsPageProps> = ({
     const filterDesc = `Brand: ${brandName}, DateRange: ${dateRangeFilter}`;
     const jsonContent = auditService.exportAuditJson(filteredLogs, metrics, filterDesc, {
       brandName,
-      exportedBy: `${currentRole.replace('_', ' ')} (Compliance Lead)`
+      exportedBy: `${currentRole} (Simulated Demo Role)`
     });
 
     const blob = new Blob([jsonContent], { type: 'application/json;charset=utf-8;' });
@@ -305,7 +305,7 @@ export const AuditReportsPage: React.FC<AuditReportsPageProps> = ({
               Storage & Cryptographic Integrity Disclosure:
             </span>
             <p style={{ fontSize: '12px', color: 'var(--color-text-muted)', margin: 0, marginTop: '2px' }}>
-              Governance records are maintained with SHA-256 sequential cryptographic hash chaining. Every policy update, content scan, and approval decision generates a cryptographically linked ledger block.
+              Records are maintained in browser local storage with sequential SHA-256 hash chaining. Local records provide explainability and sequential auditability for prototype review, but are not tamper-proof or legally admissible without remote append-only WORM/HSM infrastructure.
             </p>
           </div>
         </div>
@@ -1208,6 +1208,9 @@ export const AuditReportsPage: React.FC<AuditReportsPageProps> = ({
                 <span className="text-muted">Recorded Actor:</span>
                 <div style={{ fontWeight: 600, marginTop: '2px' }}>
                   {selectedEvent.actorName} ({selectedEvent.actorRole})
+                  <span style={{ fontSize: '11px', color: 'var(--color-text-muted)', marginLeft: '4px' }}>
+                    [Simulated Demo]
+                  </span>
                 </div>
               </div>
 
