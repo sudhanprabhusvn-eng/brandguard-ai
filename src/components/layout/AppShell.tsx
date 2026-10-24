@@ -27,6 +27,7 @@ interface AppShellProps {
   allProfiles: BrandProfile[];
   onSelectProfile: (id: string) => void;
   onCreateProfileClick: () => void;
+  backendStatus?: string;
   children: React.ReactNode;
 }
 
@@ -41,6 +42,7 @@ export const AppShell: React.FC<AppShellProps> = ({
   allProfiles,
   onSelectProfile,
   onCreateProfileClick,
+  backendStatus,
   children
 }) => {
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -165,6 +167,34 @@ export const AppShell: React.FC<AppShellProps> = ({
 
         {/* Right: Engine Status & Demo Role */}
         <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          {/* FastAPI + MongoDB Server Live Badge */}
+          {backendStatus && (
+            <div
+              style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                gap: '7px',
+                backgroundColor: 'rgba(0, 210, 150, 0.12)',
+                border: '1px solid rgba(0, 210, 150, 0.35)',
+                borderRadius: 'var(--radius-pill)',
+                padding: '5px 12px',
+                fontSize: '11.5px',
+                fontWeight: 600,
+                color: 'var(--color-mint-bright)'
+              }}
+              title="FastAPI Backend running on port 8000 with MongoDB connected on port 27017"
+            >
+              <span style={{
+                width: '7px',
+                height: '7px',
+                borderRadius: '50%',
+                backgroundColor: '#00E5A8',
+                boxShadow: '0 0 6px rgba(0, 229, 168, 0.9)'
+              }} />
+              <span>{backendStatus}</span>
+            </div>
+          )}
+
           {/* Engine Status Pill */}
           <button
             onClick={onToggleAiDegraded}

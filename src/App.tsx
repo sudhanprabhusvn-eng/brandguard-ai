@@ -18,6 +18,7 @@ import { contentService } from './services/contentService';
 import { governanceEngine } from './services/governanceEngine';
 import { approvalService } from './services/approvalService.ts';
 import { auditService } from './services/auditService.ts';
+import { apiService } from './services/apiService';
 import { AppShell } from './components/layout/AppShell';
 import { DashboardPage } from './pages/DashboardPage';
 import { BrandDnaPage } from './pages/BrandDnaPage';
@@ -51,6 +52,17 @@ export const App: React.FC = () => {
   );
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const [isNewProfileModalOpen, setIsNewProfileModalOpen] = useState(false);
+  const [backendStatus, setBackendStatus] = useState<string>('FastAPI + MongoDB (Port 8000)');
+
+  useEffect(() => {
+    apiService.checkHealth().then((health) => {
+      if (health && health.status === 'healthy') {
+        setBackendStatus(`FastAPI + ${health.database.type}`);
+      } else {
+        setBackendStatus('');
+      }
+    });
+  }, []);
 
   // Ensure active profile is always resolved
   const activeProfile =
@@ -548,6 +560,7 @@ export const App: React.FC = () => {
       allProfiles={brandProfiles}
       onSelectProfile={handleSelectProfile}
       onCreateProfileClick={() => setIsNewProfileModalOpen(true)}
+      backendStatus={backendStatus}
     >
       {currentPage === 'dashboard' && (
         <DashboardPage
