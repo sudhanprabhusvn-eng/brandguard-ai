@@ -181,16 +181,16 @@ export const AppShell: React.FC<AppShellProps> = ({
               color: '#FFFFFF',
               cursor: 'pointer'
             }}
-            title="Toggle simulated AI engine availability"
+            title="Governance Engine Status"
           >
             <span style={{
               width: '8px',
               height: '8px',
               borderRadius: '50%',
               backgroundColor: isAiDegraded ? 'var(--color-warm-peach)' : 'var(--color-mint)',
-              boxShadow: isAiDegraded ? 'none' : '0 0 8px rgba(0, 210, 150, 0.8)'
+              boxShadow: isAiDegraded ? 'none' : '0 0 8px rgba(16, 185, 129, 0.8)'
             }} />
-            <span>Engine: {isAiDegraded ? 'Offline (Demo)' : 'Gemini (Demo)'}</span>
+            <span>Engine: {isAiDegraded ? 'Deterministic Mode' : 'AI + Deterministic'}</span>
             <ChevronDown size={12} color="rgba(255, 255, 255, 0.6)" />
           </button>
 
@@ -204,7 +204,7 @@ export const AppShell: React.FC<AppShellProps> = ({
             }}>
               <User size={16} color="rgba(255, 255, 255, 0.7)" />
               <div style={{ display: 'flex', flexDirection: 'column' }}>
-                <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.5)', lineHeight: 1 }}>Role</span>
+                <span style={{ fontSize: '10px', color: 'rgba(255, 255, 255, 0.5)', lineHeight: 1 }}>Workspace Role</span>
                 <select
                   value={currentRole}
                   onChange={(e) => onRoleChange(e.target.value as PersonaRole)}
@@ -213,37 +213,41 @@ export const AppShell: React.FC<AppShellProps> = ({
                     color: '#FFFFFF',
                     border: 'none',
                     fontSize: '12px',
-                    fontWeight: 500,
+                    fontWeight: 600,
                     cursor: 'pointer',
                     outline: 'none',
                     padding: 0
                   }}
-                  title="Client-side demo role simulation"
-                  aria-label="Active persona role (Demo mode)"
+                  title="Active Workspace Persona"
+                  aria-label="Active workspace role"
                 >
-                  <option value="brand_manager" style={{ backgroundColor: 'var(--color-deep-teal)' }}>Brand Manager (Demo)</option>
-                  <option value="creator" style={{ backgroundColor: 'var(--color-deep-teal)' }}>Creator (Demo)</option>
-                  <option value="approver" style={{ backgroundColor: 'var(--color-deep-teal)' }}>Approver (Demo)</option>
-                  <option value="admin" style={{ backgroundColor: 'var(--color-deep-teal)' }}>Admin (Demo)</option>
+                  <option value="brand_manager" style={{ backgroundColor: 'var(--color-deep-teal)' }}>Brand Manager</option>
+                  <option value="creator" style={{ backgroundColor: 'var(--color-deep-teal)' }}>Content Creator</option>
+                  <option value="approver" style={{ backgroundColor: 'var(--color-deep-teal)' }}>Compliance Approver</option>
+                  <option value="admin" style={{ backgroundColor: 'var(--color-deep-teal)' }}>Workspace Admin</option>
                 </select>
               </div>
             </div>
 
             {/* Avatar Pill */}
-            <div style={{
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              backgroundColor: 'var(--color-teal-tint)',
-              color: '#FFFFFF',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '12px',
-              fontWeight: 700,
-              border: '1px solid rgba(255, 255, 255, 0.15)'
-            }}>
-              SD
+            <div
+              style={{
+                width: '32px',
+                height: '32px',
+                borderRadius: '50%',
+                backgroundColor: currentRole === 'creator' ? 'var(--color-mint)' : currentRole === 'approver' ? 'var(--color-warm-peach)' : 'var(--color-teal-tint)',
+                color: currentRole === 'creator' ? '#0C2E2D' : currentRole === 'approver' ? '#0C2E2D' : '#FFFFFF',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                fontSize: '11.5px',
+                fontWeight: 700,
+                border: '1px solid rgba(255, 255, 255, 0.25)',
+                transition: 'all 0.2s ease'
+              }}
+              title={`Simulated Persona: ${currentRole.replace('_', ' ').toUpperCase()}`}
+            >
+              {currentRole === 'creator' ? 'CR' : currentRole === 'brand_manager' ? 'BM' : currentRole === 'approver' ? 'CO' : 'AD'}
             </div>
           </div>
         </div>

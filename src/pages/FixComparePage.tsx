@@ -732,7 +732,7 @@ export const FixComparePage: React.FC<FixComparePageProps> = ({
                 backgroundColor: 'var(--color-sand)',
                 color: 'var(--color-text-secondary)',
                 cursor: 'not-allowed',
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 lineHeight: 1.65,
                 fontSize: '13.5px'
               }}
@@ -762,7 +762,7 @@ export const FixComparePage: React.FC<FixComparePageProps> = ({
               style={{
                 backgroundColor: 'var(--color-soft-white)',
                 color: 'var(--color-midnight-ink)',
-                fontFamily: 'Inter, sans-serif',
+                fontFamily: 'var(--font-sans)',
                 lineHeight: 1.65,
                 fontSize: '13.5px'
               }}
@@ -800,7 +800,7 @@ export const FixComparePage: React.FC<FixComparePageProps> = ({
               border: '1px solid var(--color-sand-dark)',
               fontSize: '14.5px',
               lineHeight: 1.8,
-              fontFamily: 'Inter, sans-serif',
+              fontFamily: 'var(--font-sans)',
               color: 'var(--color-midnight-ink)',
               minHeight: '220px'
             }}
@@ -878,7 +878,7 @@ export const FixComparePage: React.FC<FixComparePageProps> = ({
                       borderLeft: `3px solid ${isAdd ? 'var(--color-mint)' : 'var(--color-coral)'}`,
                       borderRadius: 'var(--radius-sm)',
                       fontSize: '12.5px',
-                      fontFamily: 'Inter, sans-serif'
+                      fontFamily: 'var(--font-sans)'
                     }}
                   >
                     {desc}

@@ -231,9 +231,9 @@ export const INITIAL_AUDIT_LOG: AuditEvent[] = [
     contentVersion: 'v1.0',
     contentHash: '9a8b7c6d5e4f3a2b1c0d9e8f7a6b5c4d3e2f1a0b9c8d7e6f5a4b3c2d1e0f9a8b',
     ruleVersion: 'v2.1',
-    actorName: 'Demo Approver',
+    actorName: 'Lead Approver',
     actorRole: 'approver',
-    summary: 'v1.0 • by Demo Approver'
+    summary: 'v1.0 • by Lead Approver'
   },
   {
     id: 'aud-006',

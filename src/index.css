@@ -9,7 +9,7 @@
 
 html, body {
   height: 100%;
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+  font-family: var(--font-sans);
   background-color: var(--color-sand);
   color: var(--color-text-primary);
   line-height: 1.5;
@@ -186,8 +186,9 @@ html, body {
 }
 
 .text-mono {
-  font-family: 'JetBrains Mono', 'SFMono-Regular', Consolas, monospace;
-  font-size: 11.5px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: -0.01em;
 }
 
 /* Cards Matching Design */
@@ -446,7 +447,7 @@ html, body {
 }
 
 .data-table tr:hover td {
-  background-color: #FAF8F3;
+  background-color: var(--color-sand-muted);
 }
 
 .data-table tr:last-child td {

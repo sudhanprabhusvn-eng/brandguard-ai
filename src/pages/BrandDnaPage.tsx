@@ -27,6 +27,7 @@ interface BrandDnaPageProps {
   onUpdateProfile: (updatedProfile: BrandProfile, versionChangeSummary?: string) => void;
   onResetSeed: () => void;
   onShowToast: (message: string) => void;
+  currentRole?: import('../types').PersonaRole;
 }
 
 const getNowIso = (): string => new Date().toISOString();
@@ -36,7 +37,8 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
   allProfiles,
   onUpdateProfile,
   onResetSeed,
-  onShowToast
+  onShowToast,
+  currentRole
 }) => {
   const [activeTab, setActiveTab] = useState<'all' | RuleCategory | 'evidence' | 'voice_summary'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -193,18 +195,32 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
             >
               ACTIVE GOVERNANCE PROFILE
             </span>
-            {brandProfile.isDemonstration && (
+            {currentRole && (
               <span
                 style={{
                   fontSize: '11px',
                   fontWeight: 600,
-                  backgroundColor: 'rgba(255, 182, 133, 0.25)',
+                  backgroundColor: currentRole === 'creator' ? 'rgba(0, 210, 150, 0.18)' : 'rgba(199, 184, 255, 0.3)',
                   color: 'var(--color-midnight-ink)',
                   padding: '2px 8px',
                   borderRadius: 'var(--radius-xs)'
                 }}
               >
-                ★ Demo Baseline
+                Role: {currentRole === 'creator' ? 'Creator (Guidelines Reference)' : currentRole === 'brand_manager' ? 'Brand Manager (Authoring Lead)' : currentRole === 'approver' ? 'Approver (Sign-off Authority)' : 'Administrator'}
+              </span>
+            )}
+            {brandProfile.isDemonstration && (
+              <span
+                style={{
+                  fontSize: '11px',
+                  fontWeight: 600,
+                  backgroundColor: 'rgba(5, 150, 105, 0.12)',
+                  color: 'var(--color-mint)',
+                  padding: '2px 8px',
+                  borderRadius: 'var(--radius-xs)'
+                }}
+              >
+                Standard Baseline
               </span>
             )}
             <span className="text-mono" style={{ fontSize: '12px', color: 'var(--color-text-muted)' }}>
@@ -259,10 +275,10 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
               onClick={() => setIsResetConfirmOpen(true)}
               className="btn btn-secondary btn-sm"
               style={{ color: 'var(--color-coral)' }}
-              title="Reset profile back to clean NovaPulse initial state"
+              title="Restore profile back to initial standard baseline"
             >
               <RotateCcw size={13} />
-              <span>Reset Demo</span>
+              <span>Restore Baseline</span>
             </button>
           )}
         </div>
@@ -729,7 +745,7 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
       {isResetConfirmOpen && (
         <ModalDialog
           isOpen={isResetConfirmOpen}
-          title="Reset BrandGuard Demonstration Data"
+          title="Restore Brand Baseline Rules"
           onClose={() => setIsResetConfirmOpen(false)}
           footer={
             <>
@@ -740,17 +756,17 @@ export const BrandDnaPage: React.FC<BrandDnaPageProps> = ({
                 onClick={() => {
                   onResetSeed();
                   setIsResetConfirmOpen(false);
-                  onShowToast('BrandGuard reset back to initial NovaPulse demonstration baseline.');
+                  onShowToast('Brand rules restored to initial baseline.');
                 }}
                 className="btn btn-danger"
               >
-                Confirm Reset
+                Restore Baseline
               </button>
             </>
           }
         >
           <p style={{ fontSize: '14px', color: 'var(--color-text-primary)', lineHeight: 1.5 }}>
-            This will restore the NovaPulse demonstration profile to its original v2.1 baseline rules and clear any custom edits from your browser storage.
+            This will restore the standard profile to its original v2.1 baseline rules and clear custom rule overrides from local storage.
           </p>
         </ModalDialog>
       )}

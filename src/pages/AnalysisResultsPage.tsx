@@ -575,7 +575,7 @@ export const AnalysisResultsPage: React.FC<AnalysisResultsPageProps> = ({
               lineHeight: 1.7,
               minHeight: '280px',
               color: 'var(--color-midnight-ink)',
-              fontFamily: 'Inter, sans-serif'
+              fontFamily: 'var(--font-sans)'
             }}
           >
             {renderHighlightedText()}
